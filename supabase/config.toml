@@ -1,0 +1,43 @@
+project_id = "udbwqkuyesbpxygirgfd"
+
+[functions.scrape-espn]
+verify_jwt = false
+
+[functions.scrape-espn-injuries]
+verify_jwt = false
+
+[functions.scrape-pinnacle]
+verify_jwt = false
+
+[functions.scrape-veikkaus]
+verify_jwt = false
+
+[functions.calculate-fair-odds]
+verify_jwt = false
+
+[functions.run-decision-engine]
+verify_jwt = false
+
+[functions.run-pipeline]
+verify_jwt = false
+
+[functions.send-daily-email-summary]
+verify_jwt = false
+
+[functions.send-pregame-email-summary]
+verify_jwt = false
+
+[functions.send-error-alert]
+verify_jwt = false
+
+[functions.subscribe-email]
+verify_jwt = false
+
+[functions.generate-og-image]
+verify_jwt = false
+
+[functions.fetch-cloudbet-odds]
+verify_jwt = false
+
+[functions.fetch-betfair-odds]
+verify_jwt = false
