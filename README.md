@@ -1,28 +1,28 @@
-# NBA Totals Engine — standalone landing page
+# NBA Totals Engine — landing page (Swift-inspired redesign)
+A standalone, responsive website built for the upcoming NBA totals research membership. This is an **original HTML/CSS implementation** inspired by the layout patterns of [Swift App's Framer demo](https://swift-template.framer.website/), not an export of the copyrighted Framer template. No template assets or copy are included.
 
-Independent static landing for an upcoming NBA over/under research membership. This is separate from the DoctoreAI migration branch.
+## Branch structure
+- \`landing/nba-totals\` is the source of the NBA Totals Engine website.
+- \`migration/doctore-lovable\` contains a separate draft migration of the current DoctoreAI React/Vite site. **Do not merge this branch into the NBA landing**, which would replace the landing's content.
+- \`main\` is not automatically updated by landing changes until the pull request is approved.
 
-## Deployment
+## Development
+No build step, external libraries, or provider credentials required. Run \`python3 -m http.server 8080\` and visit \`http://localhost:8080\`.
+Vercel's GitHub integration generates Preview deployments for branch updates.
 
-- Hosting: Vercel, linked to `Jambovisuaalit/totalsengine` (`main`).
-- No build tools or environmental variables required.
-- Main HTML: `index.html`; styles: `styles.css`; accessible mobile navigation: `app.js`.
-- No Stripe checkout, Telegram invites, Supabase storage, forms, or private credentials are included.
-- Planned price is indicative; enrollment remains disabled until provider eligibility, complete legal pages, and honest evidence layer are verified.
-- All sample visuals are clearly identified as illustrative, and no verified performance record is claimed.
+## Current restrictions
+- No real signals, statistics or track record are claimed. Phone mockups use explicitly labeled illustrative data.
+- €49/month is a provisional price only. There is no active checkout and no collection of personal information.
+- Stripe eligibility, legal business/operator information, privacy/terms, real evidence and authenticated Telegram access must be confirmed before live monetization.
+- The existing \`doctore-ai.com\` domain, Lovable project and Supabase database are not modified by this landing.
+- The Vercel team is currently on a Hobby plan; review commercial use requirements before production publication.
 
-## Separate applications
+## Smoke checks
+- All on-page \`href="#..."\` targets resolve.
+- Mobile navigation responds to toggle, outside click, Escape and anchor navigation.
+- FAQ uses semantic native \`details\` elements.
+- Review visual appearance at 375px, 768px and 1440px, plus reduced-motion preference.
+- Review deployment protection and published URL before sharing.
 
-- `main`: NBA Totals Engine landing.
-- `migration/doctore-lovable`: staged port of current DoctoreAI React/Vite app. Do not merge over the standalone landing; use a separate repository/project if continuing the DoctoreAI migration.
-
-## Local test
-
-Serve from repository root, e.g. `python3 -m http.server 8080`, then open http://localhost:8080. Verify desktop and mobile views, anchors, accessible menu and FAQ.
-
-## Launch checklist
-
-- Confirm hosting plan permits intended commercial use before public monetization.
-- Confirm legal business identity, privacy/terms, payment provider eligibility and actual price/currency.
-- Publish audited track record before stating ROI or CLV statistics.
-- Do not add purchase link or Telegram invitation until the checkout-to-access integration is validated.
+## Reference
+Swift App — created by Yousef Osman, published on Framer Marketplace. Original design and assets remain theirs.
