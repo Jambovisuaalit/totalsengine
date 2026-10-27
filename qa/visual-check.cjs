@@ -45,8 +45,8 @@ function test(ok, label, description) {
           kpis:[...document.querySelectorAll(".proof-metrics small")].map(x=>x.textContent.trim()),
           kpiValues:[...document.querySelectorAll(".proof-metrics strong")].map(x=>x.textContent.trim()),
           badAnchors,
-          disclosed:document.body.innerText.includes("ILLUSTRATIVE VALUES"),
-          closed:document.body.innerText.includes("Enrollment not open yet"),
+          disclosed:document.body.innerText.includes("ILLUSTRATIVE VALUES") && document.body.innerText.includes("NON-COMMERCIAL DEMO"),
+          closed:document.body.innerText.includes("Non-commercial concept demo"),
           checkout:[...document.querySelectorAll("a")].filter(x=>/buy\.stripe\.com|checkout/i.test(x.href)).length
         };
       });
@@ -55,11 +55,11 @@ function test(ok, label, description) {
       test(m.button.height>=48 && m.button.left>=-1 && m.button.right<=m.width+1,c.label,"Hero CTA has >=48px touch target and fits viewport");
       test(m.tileCount===3 && m.columns===(c.width<=780?1:3),c.label,"Bento responsive columns");
       const channel=(m.cardBackground.match(/\d+/g)||[]).slice(0,3).map(Number);
-      test(channel.length===3 && channel.every(x=>x>=235),c.label,"Pricing card is high-contrast light");
+      test(channel.length===3 && channel.every(x=>x>=235),c.label,"Research-demo card is high-contrast light");
       test(Number(m.phoneZ[1])>Number(m.phoneZ[0]) && Number(m.phoneZ[1])>Number(m.phoneZ[2]),c.label,"Center phone is in front");
       test(m.kpis.join("|")==="CLV avg|Win rate|Tracked ROI|Signals tracked" && m.kpiValues.every(x=>x==="—"),c.label,"Evidence has correct titles without invented ROI");
       test(m.badAnchors.length===0,c.label,"All page anchors resolve");
-      test(m.disclosed && m.closed && m.checkout===0,c.label,"Illustrative UI disclosed, payments disabled");
+      test(m.disclosed && m.closed && m.checkout===0,c.label,"Non-commercial demo disclosed, payments disabled");
       test(errors.length===0,c.label,"No page errors: "+errors.join(","));
       if(c.width<=780){
         const toggle=page.locator("#menu-toggle");
