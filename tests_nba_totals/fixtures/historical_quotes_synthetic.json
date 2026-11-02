@@ -1,0 +1,10 @@
+[
+  {
+    "bookmaker_id":"synthetic_book","market_id":"nba-total-001","game_id":"123e4567-e89b-42d3-a456-426614174000",
+    "line":"220.5","selection":"OVER","settlement_scope":"NBA_FULL_GAME_TOTAL_INCLUDING_OT",
+    "observed_at":"2026-01-01T17:58:00+00:00","provider_published_at":"2026-01-01T17:57:50+00:00",
+    "scheduled_tipoff":"2026-01-01T19:00:00+00:00","expires_at":"2026-01-01T18:59:00+00:00",
+    "odds":"1.95","source_id":"synthetic_fixture","source_record_id":"synthetic-001",
+    "raw_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","offered":true,"live":false
+  }
+]
