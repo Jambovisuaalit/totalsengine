@@ -1,126 +1,24 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
-import { useEdgesPublic, EdgeFilters } from "@/hooks/useEdgesPublic";
-import { AnalysisCard } from "@/components/analysis/AnalysisCard";
-import { AnalysisFilters } from "@/components/analysis/AnalysisFilters";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, BookOpen } from "lucide-react";
+import { ProductFrame, EvidenceNotice } from "@/components/ProductFrame";
+type Phase = "idle" | "invalid" | "blocked";
 export default function AnalysisIndex() {
-  const [filters, setFilters] = useState<EdgeFilters>({});
-  const { data: edges = [], isLoading, error } = useEdgesPublic();
-
-  // Apply client-side filtering for sport (since it's derived from league)
-  const filteredEdges = edges.filter((edge) => {
-    if (filters.league && edge.league !== filters.league) return false;
-    if (filters.market && edge.market !== filters.market) return false;
-    // Date filtering is done server-side
-    return true;
-  });
-
-  return (
-    <>
-      <Helmet>
-        <title>Market Analysis | Doctore</title>
-        <meta
-          name="description"
-          content="Educational market analysis highlighting pricing discrepancies and model-derived fair values. Informational only."
-        />
-        <link rel="canonical" href="https://doctore.lovable.app/analysis" />
-        
-        {/* Open Graph */}
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Market Analysis | Doctore" />
-        <meta property="og:description" content="Educational market analysis highlighting pricing discrepancies and model-derived fair values." />
-        <meta property="og:url" content="https://doctore.lovable.app/analysis" />
-        <meta property="og:image" content="https://doctore.lovable.app/og/analysis.png" />
-        <meta property="og:site_name" content="Doctore" />
-        
-        {/* Twitter/X */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Market Analysis | Doctore" />
-        <meta name="twitter:description" content="Educational market analysis. Informational only." />
-        <meta name="twitter:image" content="https://doctore.lovable.app/og/analysis.png" />
-      </Helmet>
-
-      <div className="min-h-screen flex flex-col bg-background">
-        <SiteHeader />
-
-        <main className="flex-1 container max-w-7xl mx-auto px-4 py-8 sm:py-12">
-          {/* Page Header */}
-          <div className="space-y-4 mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              Market Analysis
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Explore current market signals where offered odds differ from model-derived 
-              fair values. Each analysis provides educational context on pricing discrepancies.
-            </p>
-            <Link 
-              to="/methodology" 
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <BookOpen className="h-4 w-4" />
-              Learn how we identify edges →
-            </Link>
-          </div>
-
-          {/* Filters */}
-          <div className="mb-8">
-            <AnalysisFilters
-              edges={edges}
-              filters={filters}
-              onFiltersChange={setFilters}
-            />
-          </div>
-
-          {/* Content */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="h-[300px] w-full rounded-lg" />
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Unable to load analyses</h2>
-              <p className="text-muted-foreground">
-                Please try again later or contact support if the issue persists.
-              </p>
-            </div>
-          ) : filteredEdges.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <AlertCircle className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h2 className="text-xl font-semibold mb-2">No analyses available</h2>
-              <p className="text-muted-foreground max-w-md">
-                {Object.values(filters).some(Boolean)
-                  ? "No market signals match your current filters. Try adjusting or clearing filters."
-                  : "There are currently no actionable market signals. Check back later for new analyses."}
-              </p>
-            </div>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground mb-6">
-                Showing {filteredEdges.length} {filteredEdges.length === 1 ? "analysis" : "analyses"}
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredEdges.map((edge) => (
-                  <AnalysisCard key={edge.id} edge={edge} />
-                ))}
-              </div>
-            </>
-          )}
-        </main>
-
-        <SiteFooter />
-      </div>
-    </>
-  );
+ const [gameId,setGameId] = useState("");
+ const [phase,setPhase] = useState<Phase>("idle");
+ const valid = /^\d{8,12}$/.test(gameId.trim());
+ function submit(e: React.FormEvent) {e.preventDefault();setPhase(valid ? "blocked" : "invalid");}
+ return <ProductFrame><Helmet><title>Analyze Game — TotalsEngine</title><meta name="description" content="NBA totals analysis evidence gate; no unaudited predictions or bookmaker lines." /></Helmet>
+  <div className="container max-w-4xl py-12 sm:py-16"><p className="text-xs uppercase tracking-widest text-primary">NBA / Total points</p><h1 className="mt-2 text-4xl font-semibold tracking-tight">Analyze Game</h1><p className="mt-4 max-w-2xl text-muted-foreground">Use an NBA game ID to initiate an evidence check. This interface does not guess fixtures, fabricate totals, or synthesize market lines.</p>
+  <div className="mt-8"><EvidenceNotice/></div>
+  <form onSubmit={submit} className="mt-8 rounded-xl border border-border bg-card p-6" noValidate>
+    <label htmlFor="nba-game-id" className="block font-medium">NBA game ID</label>
+    <p id="id-help" className="mt-1 text-sm text-muted-foreground">Enter an official numeric game identifier (8–12 digits). Game lookup is not connected yet.</p>
+    <div className="mt-4 flex flex-col gap-3 sm:flex-row"><input id="nba-game-id" aria-describedby="id-help" inputMode="numeric" autoComplete="off" placeholder="Official game ID" value={gameId} onChange={e=>{setGameId(e.target.value);setPhase("idle");}} className="min-w-0 flex-1 rounded-md border border-input bg-background px-4 py-3 text-foreground"/><button className="rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground" type="submit">Analyze Game</button></div>
+    {phase==="invalid" && <p role="alert" className="mt-3 text-sm text-destructive">Enter an 8–12 digit NBA game ID.</p>}
+    {phase==="blocked" && <p role="status" className="mt-3 text-sm text-amber-500">Game {gameId.trim()} was not verified. Fixture lookup, evidence-backed predictions and bookmaker odds are not yet connected. No model output or betting decision is available.</p>}
+  </form>
+  <section className="mt-8 grid gap-4 sm:grid-cols-3" aria-label="Prediction evaluation fields">
+  {[["Game and tipoff","UNAVAILABLE"],["Model total / uncertainty","NOT VERIFIED"],["Bookmaker total / odds","NOT CONNECTED"]].map(([k,v])=><div key={k} className="rounded-lg border border-border p-5"><p className="text-sm text-muted-foreground">{k}</p><strong className="mt-3 block text-lg">{v}</strong></div>)}</section>
+  <div className="mt-8 rounded-lg border border-border p-5"><h2 className="font-semibold">Evidence required to unlock an analysis</h2><p className="mt-3 text-sm leading-relaxed text-muted-foreground">Verified fixture and scheduled tipoff → pre-game input cutoff → timestamped forecast and model artifact hash → uncertainty/calibration → timestamped licensed bookmaker line and price. Until then the decision is <strong>NO PLAY / NO CLAIM</strong>.</p></div>
+  </div></ProductFrame>;
 }

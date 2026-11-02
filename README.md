@@ -62,3 +62,21 @@ Do not run research scripts with real provider feeds or publish calculated marke
 - Root configuration/verification: implemented in this PR; check CI run before merge
 - Historical accuracy: retrospective research only; independently evidenced prospective results **not yet available**
 - Market comparison and production betting: **NO-GO** pending genuine timestamped odds and forward evidence.
+
+
+## React UI migration scope (2026-11-02)
+
+The active Vite app is now a TotalsEngine-branded, **NBA-only evidence-gated prototype**:
+
+- `/`: product overview, explicit research status and workflow CTA.
+- `/analysis`: NBA game-ID input and evidence gates; lookup/predictions are **not** connected, so this never fabricates results.
+- `/methodology`: prospective-vs-retrospective and market-validation methodology.
+- `/performance`: no unsupported win-rate, CLV or ROI reporting.
+- All former DoctoreAI pricing, subscriber, affiliate, multi-sport and live-signal URLs land on an explicit retired-feature screen. They are not active product flows.
+
+**Legacy sources remain checked in for historical review** under `src/pages`, `src/components`, `src/hooks` and `supabase/`; they are not imported by the new `src/App.tsx` route tree. Backend Supabase functions are not migrated or enabled as TotalsEngine infrastructure by this UI change. Do not reconnect legacy betting jobs to the app until the evidence and licensing gates pass.
+
+### Follow-up gates
+- Connect a verified NBA game schedule/ID source, then genuine pregame predictions.
+- Restore login or subscriptions only after explicit new product authorization and backend review.
+- Run visual QA against the built Vite preview; do not use the static landing QA runner against `index.html`.

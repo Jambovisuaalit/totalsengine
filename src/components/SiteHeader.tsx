@@ -1,68 +1,17 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { NavLink } from "@/components/NavLink";
-
-const navLinks = [
+import { Link, NavLink } from "react-router-dom";
+const links = [
+  { to: "/", label: "Overview", end: true },
+  { to: "/analysis", label: "Analyze Game" },
   { to: "/methodology", label: "Methodology" },
-  { to: "/analysis", label: "Analysis" },
-  { to: "/edge-detection", label: "Edge Detection" },
-  { to: "/clv", label: "CLV" },
-  { to: "/blog", label: "Blog" },
-  { to: "/pricing", label: "Pricing" },
-  { to: "/dashboard", label: "Dashboard" },
+  { to: "/performance", label: "Validation Status" },
 ];
-
-export const SiteHeader = () => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <header className="border-b border-border/60 sticky top-0 bg-background/95 backdrop-blur z-10">
-      <div className="container py-3 sm:py-4 flex items-center justify-between">
-        <Link to="/" className="text-base font-medium tracking-normal text-foreground">
-          doctore
-        </Link>
-        
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              activeClassName="text-foreground"
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Mobile hamburger menu */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Open menu">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-56 sm:w-64 pt-12">
-            <nav className="flex flex-col gap-1">
-              {navLinks.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setOpen(false)}
-                  className="text-base text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors py-3 px-2 rounded-md"
-                  activeClassName="text-foreground bg-muted/50"
-                >
-                  {link.label}
-                </NavLink>
-              ))}
-            </nav>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </header>
-  );
-};
+export function SiteHeader() {
+  return <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 backdrop-blur">
+    <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
+      <Link to="/" className="text-lg font-bold tracking-tight">TOTALS<span className="text-primary">ENGINE</span></Link>
+      <nav aria-label="Primary navigation" className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+        {links.map(({to,label,end}) => <NavLink key={to} to={to} end={end} className={({isActive}) => isActive ? "font-medium text-foreground underline underline-offset-8" : "text-muted-foreground hover:text-foreground"}>{label}</NavLink>)}
+      </nav>
+    </div>
+  </header>;
+}
