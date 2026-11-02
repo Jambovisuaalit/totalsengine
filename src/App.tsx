@@ -17,6 +17,7 @@ import ResponsibleGaming from "./pages/ResponsibleGaming";
 import Terms from "./pages/Terms";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
+import TelegramPrivacy from "./pages/TelegramPrivacy";
 import AnalysisIndex from "./pages/AnalysisIndex";
 import AnalysisDetail from "./pages/AnalysisDetail";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -91,6 +92,7 @@ const App = () => (
           <Route path="/analysis" element={<AnalysisIndex />} />
           <Route path="/analysis/:id" element={<AnalysisDetail />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy/telegram" element={<TelegramPrivacy />} />
           <Route path="/manifesto" element={<Suspense fallback={<PageLoader />}><Manifesto /></Suspense>} />
           <Route path="/sitemap" element={<Sitemap />} />
           {/* Pre-Game routes */}
