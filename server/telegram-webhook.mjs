@@ -23,7 +23,7 @@ export function commandResponse(update) {
  if (!m) return null;
  if (m[2] && m[2].toLowerCase()!=="totalsengine_bot") return null;
  const key=m[1].toLowerCase();
- return {chat_id:message.chat.id, text:msg[key]||"Unknown command. Type /help for supported commands.", command:key, args:message.text.trim().slice(first.length).trim(), private:message.chat.type==="private"};
+ return {chat_id:message.chat.id, text:msg[key]||"Unknown command. Type /help for supported commands.", command:key, args:message.text.trim().slice(first.length).trim(), private:message.chat.type==="private", chatType:message.chat.type, addressedToBot:Boolean(m[2]), updateId:update.update_id};
 }
 export async function processTelegramUpdate(request, options) {
  const {secret,token,fetcher=fetch}=options;
@@ -44,12 +44,20 @@ export async function processTelegramUpdate(request, options) {
  if (!Number.isSafeInteger(update?.update_id))return json(400,{error:"INVALID_UPDATE"});
  const answer=commandResponse(update);
  if(!answer)return json(200,{ok:true,ignored:true});
- // MVP is private-chat only. Group enablement needs access/rate controls.
- if(!answer.private)return json(200,{ok:true,ignored:true});
+ // Fail closed for all groups unless explicitly allowlisted by numeric Telegram chat ID.
+ // Require /command@TotalsEngine_bot in groups to avoid unsolicited replies.
+ const group = answer.chatType==="supergroup" || answer.chatType==="group";
+ if(!answer.private) {
+  const allowedId=String(options.allowedGroupId ?? "");
+  if(!group || !/^-[0-9]{3,20}$/.test(allowedId) ||
+     String(answer.chat_id)!==allowedId || !answer.addressedToBot)
+   return json(200,{ok:true,ignored:true});
+ }
+
  if(answer.command==="games" || answer.command==="analyze"){
   answer.text=await generateFixtureReply(answer.command,answer.args,options);
  }
- delete answer.command;delete answer.args;delete answer.private;
+ delete answer.command;delete answer.args;delete answer.private;delete answer.chatType;delete answer.addressedToBot;delete answer.updateId;
  try{
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),6000);

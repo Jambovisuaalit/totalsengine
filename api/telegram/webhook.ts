@@ -3,7 +3,8 @@ export async function POST(request: Request) {
  return processTelegramUpdate(request,{
   secret:process.env.TELEGRAM_WEBHOOK_SECRET,
   token:process.env.TELEGRAM_BOT_TOKEN,
-  nbaApiKey:process.env.BALLDONTLIE_API_KEY
+  nbaApiKey:process.env.BALLDONTLIE_API_KEY,
+  allowedGroupId:process.env.TELEGRAM_ALLOWED_GROUP_ID
  });
 }
 export function GET() {
