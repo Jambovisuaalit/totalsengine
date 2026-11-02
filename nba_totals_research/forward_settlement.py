@@ -277,7 +277,8 @@ def collect_long_term_forecasts(repo: str, token: str) -> list[dict]:
 def run_report(repo: str, token: str, output: Path, *, at: datetime | None = None,
                predictions: list[dict] | None = None, fetch=download_day) -> dict:
     at = (at or datetime.now(UTC)).astimezone(UTC)
-    forecasts = (predictions if predictions is not None else\n                 collect_from_github(repo, token) + collect_long_term_forecasts(repo, token))
+    forecasts = (predictions if predictions is not None else
+                 collect_from_github(repo, token) + collect_long_term_forecasts(repo, token))
     if not forecasts:
         finals = []
         source_raw = {}
