@@ -32,6 +32,7 @@ export const SEOHead = ({ title, description, canonical }: SEOHeadProps) => {
       link.rel = "canonical";
       link.href = canonical;
       if (!existingCanonical) document.head.appendChild(link);
+      return () => { link.remove(); };
     } else {
       existingCanonical?.remove();
     }
