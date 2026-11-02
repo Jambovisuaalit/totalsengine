@@ -1,0 +1,43 @@
+name: NBA forward paper settlement — research only
+on:
+  schedule:
+    - cron: "45 17 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HALTED: "1"
+      PUBLICATION_ALLOWED: "false"
+      PYTHONPATH: "."
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout research settlement code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: research/nba-v2-external-evidence-integration
+          persist-credentials: false
+      - name: Set Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Assert fail-closed defaults
+        shell: bash
+        run: |
+          test "$HALTED" = "1"
+          test "$PUBLICATION_ALLOWED" = "false"
+      - name: Match archived paper predictions to final NBA scores
+        shell: bash
+        run: |
+          python -m nba_totals_research.forward_settlement --output "$RUNNER_TEMP/nba-settlement"
+      - name: Preserve provisional settlement report and source snapshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: nba-settlement-${{ github.run_id }}
+          path: ${{ runner.temp }}/nba-settlement/
+          retention-days: 30
+          if-no-files-found: error
