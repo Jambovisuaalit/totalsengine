@@ -29,6 +29,8 @@ jobs:
           done
           exit 1
       - name: Test layouts and interactions
+        env:
+          LANDING_BASE_URL: http://127.0.0.1:8080/public/research-preview.html
         run: npm --prefix qa test
       - name: Upload screenshots and QA evidence
         if: always()

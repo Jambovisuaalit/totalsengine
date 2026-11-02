@@ -1,89 +1,64 @@
-# DoctoreAI
+# TotalsEngine
 
-Design the main dashboard page for DoctoreAI.
+**TotalsEngine** is an NBA game-totals research and analysis product. Its intended core workflow is **Analyze Game → Review Prediction → Evaluate Market Edge**. Forecasting, accuracy validation and bookmaker-market evaluation are separate evidence gates. There is no verified prospective performance or live betting-edge claim.
 
+## Repository layout
 
+| Path | Purpose |
+| --- | --- |
+| `src/` | React + TypeScript + Vite web app (currently contains legacy DoctoreAI UI/content requiring product migration) |
+| `index.html` | Single valid Vite entry document |
+| `public/research-preview.html` | Archived standalone TotalsEngine concept landing; illustrative, not a live data product |
+| `nba_totals_research/` | **Independent Python offline evidence/verification module**, not imported by or deployed as the Vite app |
+| `tests_nba_totals/` | Python research tests |
+| `tests/` | Root configuration/CI tests |
+| `docs/` | Research notes and evidence protocol |
+| `qa/` | Optional Playwright visual QA tools |
 
+**Important:** The React UI originates from a different DoctoreAI implementation; changing repository metadata does **not** mean that all React screens, routes, copy, or integrations have been migrated to TotalsEngine. Audit/replace those separately before advertising the app as a finished TotalsEngine experience. Do not treat the legacy DoctoreAI URL as a TotalsEngine production deployment.
 
-UI principles:
-- Extreme clarity
-- No marketing language
-- No charts unless necessary
-- Designed for fast betting decisions
+## Local web app
 
+Requires Node.js 22 and npm. Vite is the production build system (not a no-build static site).
 
-
-
-Dashboard layout (mobile-first):
-- Header: "DoctoreAI — Active Plays"
-- For each bet:
-  - League
-  - Match (Home vs Away)
-  - Market (e.g. 1X2 / Moneyline / Total)
-  - Selection
-  - Market odds
-  - Fair odds
-  - Edge %
-  - Recommended stake (units)
-  - Start time (local time)
-- Highlight edge > 5% in green
-- Grey out bets starting in <10 minutes
-- Sticky footer showing:
-  - Total open risk (sum of units)
-
-
-
-
-No fake data.
-Use real Supabase responses.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://doctore.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/02d26369-655d-42eb-92de-59bbe9ff4086).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+```bash
+npm ci
+cp .env.example .env.local
+# Set valid public Supabase URL and publishable key in .env.local
 npm run dev
+npm run lint
+npm test
+npm run build
 ```
-# NBA Totals Engine — landing page (Swift-inspired redesign)
-A standalone, responsive website built for the upcoming NBA totals research membership. This is an **original HTML/CSS implementation** inspired by the layout patterns of [Swift App's Framer demo](https://swift-template.framer.website/), not an export of the copyrighted Framer template. No template assets or copy are included.
 
-## Branch structure
-- \`landing/nba-totals\` is the source of the NBA Totals Engine website.
-- \`migration/doctore-lovable\` contains a separate draft migration of the current DoctoreAI React/Vite site. **Do not merge this branch into the NBA landing**, which would replace the landing's content.
-- \`main\` is not automatically updated by landing changes until the pull request is approved.
+Required public environment variables:
+- `VITE_SUPABASE_URL` — HTTPS URL of the selected Supabase project.
+- `VITE_SUPABASE_PUBLISHABLE_KEY` — client-safe publishable/anon key.
 
-## Development
-No build step, external libraries, or provider credentials required. Run \`python3 -m http.server 8080\` and visit \`http://localhost:8080\`.
-Vercel's GitHub integration generates Preview deployments for branch updates.
+`VITE_SUPABASE_PROJECT_ID` is optional metadata. Never use a Supabase service-role key in the frontend. The web app validates at startup, and the Vite build fails fast if required values are missing or malformed. Values for deployment must be provided in Vercel project settings. CI uses **non-production placeholders** solely to verify compilation; this does not test live Supabase connectivity.
 
-## Current restrictions
-- No real signals, statistics or track record are claimed. Phone mockups use explicitly labeled illustrative data.
-- €49/month is a provisional price only. There is no active checkout and no collection of personal information.
-- Stripe eligibility, legal business/operator information, privacy/terms, real evidence and authenticated Telegram access must be confirmed before live monetization.
-- The existing \`doctore-ai.com\` domain, Lovable project and Supabase database are not modified by this landing.
-- The Vercel team is currently on a Hobby plan; review commercial use requirements before production publication.
+## Deployment
 
-## Smoke checks
-- All on-page \`href="#..."\` targets resolve.
-- Mobile navigation responds to toggle, outside click, Escape and anchor navigation.
-- FAQ uses semantic native \`details\` elements.
-- Review visual appearance at 375px, 768px and 1440px, plus reduced-motion preference.
-- Review deployment protection and published URL before sharing.
+The root `vercel.json` configures the Vite build to `dist/` and sends SPA routes to `index.html`; static assets are served directly. The optional static preview remains in `public/research-preview.html`. Do not claim a green deployment until Vercel actually completes the build and smoke checks.
 
-## Reference
-Swift App — created by Yousef Osman, published on Framer Marketplace. Original design and assets remain theirs.
+## Research boundary
+
+`nba_totals_research/` is a standalone Python module for offline NBA totals evidence, audit gates and synthetic paper evaluation. It is **not** a FastAPI backend, not called from the browser, not packaged into the Vite bundle, and not evidence of live forecasts. Its dependencies and tests are managed separately.
+
+```bash
+python3 -m pip install "cryptography==46.0.4"
+python3 -m unittest discover -s tests_nba_totals -p 'test_*.py' -v
+```
+
+Do not run research scripts with real provider feeds or publish calculated market edges unless licensing, timestamp provenance, model artifact integrity, independent evidence archiving, and verification gates are satisfied. Retrospective simulations must be labeled as such.
+
+## CI
+
+`.github/workflows/root-ci.yml` runs npm clean install, environment checks, ESLint, Node tests and Vite production build. A separate Python test job validates the isolated research module. Existing specialized research and visual-QA workflows remain independent. Any pre-existing lint errors will block CI instead of being silently suppressed.
+
+## Status
+
+- Web repository: mixed legacy UI, **not yet product-migrated**
+- Root configuration/verification: implemented in this PR; check CI run before merge
+- Historical accuracy: retrospective research only; independently evidenced prospective results **not yet available**
+- Market comparison and production betting: **NO-GO** pending genuine timestamped odds and forward evidence.
