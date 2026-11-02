@@ -26,6 +26,29 @@
     }, { passive: true });
   }
 
+  // Narrow scroll progress indicator; requestAnimationFrame keeps updates
+  // off the hot scroll event path.
+  const progress = document.createElement("div");
+  progress.className = "te-scroll-progress";
+  progress.setAttribute("aria-hidden", "true");
+  document.body.appendChild(progress);
+  let frameRequested = false;
+  const updateProgress = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const fraction = max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;
+    progress.style.transform = "scaleX(" + fraction.toFixed(4) + ")";
+    frameRequested = false;
+  };
+  const requestProgress = () => {
+    if (!frameRequested) {
+      frameRequested = true;
+      window.requestAnimationFrame(updateProgress);
+    }
+  };
+  updateProgress();
+  window.addEventListener("scroll", requestProgress, { passive: true });
+  window.addEventListener("resize", requestProgress, { passive: true });
+
   const header = document.querySelector(".header");
   const handleScroll = () => {
     if (header) header.classList.toggle("is-scrolled", window.scrollY > 12);
