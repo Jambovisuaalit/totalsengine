@@ -197,7 +197,7 @@ const Landing = () => {
       <footer className="border-t border-white/10 bg-[#090b10] px-5 py-10 sm:px-8">
         <div className="mx-auto flex max-w-[1200px] flex-col justify-between gap-8 md:flex-row md:items-end">
           <div><Link to="/" className="text-lg font-bold tracking-[-.055em] text-white">TOTALS<span className="font-normal text-[#ff9b65]">ENGINE</span></Link><p className="mt-3 max-w-md text-xs leading-relaxed text-white/45">An evidence-led NBA totals research project. No betting advice, no guaranteed outcomes and no paid picks.</p></div>
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-xs text-white/55"><a href="#how-it-works" className="hover:text-white">Process</a><a href="#research" className="hover:text-white">Status</a><a href="#methodology" className="hover:text-white">Methodology</a><Link to="/responsible-gaming" className="hover:text-white">Responsible gaming</Link><Link to="/terms" className="hover:text-white">Terms</Link></div>
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-xs text-white/55"><a href="#how-it-works" className="hover:text-white">Process</a><a href="#research" className="hover:text-white">Status</a><a href="#methodology" className="hover:text-white">Methodology</a><a href={GITHUB_DOC} target="_blank" rel="noreferrer" className="hover:text-white">Research log</a><a href="#faq" className="hover:text-white">FAQ</a></div>
         </div>
         <div className="mx-auto mt-9 max-w-[1200px] border-t border-white/10 pt-5 text-[11px] text-white/35">© {new Date().getFullYear()} TotalsEngine. Research interface preview. Not a live betting service.</div>
       </footer>
