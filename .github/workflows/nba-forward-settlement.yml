@@ -1,9 +1,5 @@
 name: NBA forward paper settlement — research only
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'research-trigger/nba-settlement-first-run-2026-11-02.txt'
   schedule:
     - cron: "45 17 * * *"
   workflow_dispatch:
