@@ -14,7 +14,9 @@ import re
 import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.parse import urlparse
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 from .scheduled_paper_collector import canonical, digest, download_day, extract, iso
 
@@ -41,13 +43,40 @@ def github_json(url: str, *, token: str) -> dict:
     return json.loads(raw)
 
 
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        return None
+
+
 def github_archive(url: str, *, token: str) -> bytes:
+    """Request a signed artifact URL with GitHub auth; never forward auth to CDN."""
+    parsed = urlparse(url)
+    if parsed.scheme != "https" or parsed.hostname != "api.github.com":
+        raise ValueError("Artifact API URL must use api.github.com over HTTPS")
     request = Request(url, headers={
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
         "User-Agent": "TotalsEngineResearch/1.0",
     })
-    with urlopen(request, timeout=30) as response:
+    try:
+        with build_opener(_NoRedirect()).open(request, timeout=30) as response:
+            raise ValueError("Expected a GitHub redirect to signed archive URL")
+    except HTTPError as exc:
+        if exc.code not in (302, 303, 307):
+            raise
+        location = exc.headers.get("Location")
+        if not location:
+            raise ValueError("GitHub artifact redirect has no Location") from exc
+    signed = urlparse(location)
+    hostname = (signed.hostname or "").lower()
+    if (signed.scheme != "https" or signed.username or signed.password or
+            not (hostname == "github.com" or hostname.endswith(".blob.core.windows.net")
+                 or hostname.endswith(".actions.githubusercontent.com"))):
+        raise ValueError("Unexpected signed artifact archive domain")
+    # Signed storage URL already contains a short-lived credential; NO GitHub
+    # authorization header is sent to the storage provider.
+    with urlopen(Request(location, headers={"User-Agent": "TotalsEngineResearch/1.0"}),
+                 timeout=30) as response:
         data = response.read(MAX_ARTIFACT + 1)
         if len(data) > MAX_ARTIFACT:
             raise ValueError("Oversized Actions artifact")
