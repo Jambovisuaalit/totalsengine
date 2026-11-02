@@ -10,6 +10,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
+from pathlib import Path
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
@@ -25,7 +26,7 @@ class ScheduleObservation:
     publication_allowed: bool = False
 
 
-def observe_espn_nba_schedule(day: date, *, timeout: float = 8.0) -> ScheduleObservation:
+def observe_espn_nba_schedule(day: date, *, timeout: float = 8.0, raw_output: Path | None = None) -> ScheduleObservation:
     """GET-only, no credentials, no wagering, no storage, no publisher."""
     if type(day) is not date or not (0 < timeout <= 15):
         raise ValueError("Invalid observation parameters")
@@ -52,6 +53,23 @@ def observe_espn_nba_schedule(day: date, *, timeout: float = 8.0) -> ScheduleObs
     payload = json.loads(raw)
     if not isinstance(payload, dict) or not isinstance(payload.get("events"), list):
         raise ValueError("Unexpected external schema")
+    if raw_output is not None:
+        import os
+        import tempfile
+        target = Path(raw_output)
+        if target.is_symlink() or target.exists():
+            raise ValueError("Raw evidence target must not exist")
+        target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        fd, temporary = tempfile.mkstemp(prefix=".espn-", dir=target.parent)
+        try:
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(raw)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.chmod(temporary, 0o600)
+            os.link(temporary, target)  # exclusive; never overwrite an existing file
+        finally:
+            os.unlink(temporary)
     return ScheduleObservation(
         source="ESPN_NBA_SCOREBOARD_UNVERIFIED",
         fetched_at_utc=datetime.now(timezone.utc).isoformat(),
