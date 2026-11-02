@@ -4,7 +4,7 @@ on:
     - cron: "15 16 * * *"
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   collect:
     runs-on: ubuntu-latest
@@ -13,6 +13,7 @@ jobs:
       HALTED: "1"
       PUBLICATION_ALLOWED: "false"
       PYTHONPATH: "."
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout research implementation
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -40,3 +41,7 @@ jobs:
           path: ${{ runner.temp }}/nba-paper/
           retention-days: 30
           if-no-files-found: error
+      - name: Persist derived forecasts in GitHub research ledger (create-only)
+        shell: bash
+        run: |
+          python -m nba_totals_research.research_ledger forecasts --directory "$RUNNER_TEMP/nba-paper" --run-id "$GITHUB_RUN_ID"
