@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 from .scheduled_paper_collector import canonical, digest, download_day, extract, iso
+from .research_ledger import load_forecasts
 
 UTC = timezone.utc
 MAX_ARTIFACT = 12_000_000
@@ -248,10 +249,35 @@ def collect_from_github(repo: str, token: str, *, max_runs: int = MAX_ARCHIVES) 
     return result
 
 
+def collect_long_term_forecasts(repo: str, token: str) -> list[dict]:
+    """Read ledger forecasts and validate source GitHub run before admission."""
+    forecasts = load_forecasts(repo, token)
+    runs = {}
+    verified = []
+    for p in forecasts:
+        run_id = p["_github_run_id"]
+        if run_id not in runs:
+            runs[run_id] = github_json(
+                f"https://api.github.com/repos/{repo}/actions/runs/{run_id}", token=token)
+        run = runs[run_id]
+        if (run.get("conclusion") != "success" or run.get("status") != "completed"
+                or run.get("head_branch") != "main"
+                or run.get("path") != ".github/workflows/nba-forward-collection.yml"):
+            raise ValueError("Untrusted long-term forecast run")
+        created, completed = iso(run["created_at"]), iso(run["updated_at"])
+        generated, tipoff = iso(p["generated_at_host_utc"]), iso(p["scheduled_tipoff"])
+        if not (created - timedelta(minutes=1) <= generated <= completed + timedelta(minutes=1)
+                and completed < tipoff and (tipoff - generated).total_seconds() >= 7200):
+            raise ValueError("Long-term prediction time is not pregame")
+        p["_github_completed_utc"] = completed.isoformat()
+        verified.append(p)
+    return verified
+
+
 def run_report(repo: str, token: str, output: Path, *, at: datetime | None = None,
                predictions: list[dict] | None = None, fetch=download_day) -> dict:
     at = (at or datetime.now(UTC)).astimezone(UTC)
-    forecasts = predictions if predictions is not None else collect_from_github(repo, token)
+    forecasts = (predictions if predictions is not None else\n                 collect_from_github(repo, token) + collect_long_term_forecasts(repo, token))
     if not forecasts:
         finals = []
         source_raw = {}
