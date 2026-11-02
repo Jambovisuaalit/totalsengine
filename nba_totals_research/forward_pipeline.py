@@ -83,6 +83,20 @@ def infer_rolling_team_total(csv_path: Path, *, away: str, home: str,
             "eligible_for_verified_evaluation": False}
 
 
+def tsa_signed_time(audit_raw: bytes) -> datetime:
+    """Extract TSA-signed genTime from OpenSSL's verified reply display."""
+    text = json.loads(audit_raw)["timestamp_response_text"]
+    stamps = [line.split("Time stamp:", 1)[1].strip()
+              for line in text.splitlines() if "Time stamp:" in line]
+    if len(stamps) != 1:
+        raise ValueError("Missing or ambiguous TSA signed time")
+    try:
+        dt = datetime.strptime(stamps[0], "%b %d %H:%M:%S %Y GMT")
+    except ValueError as exc:
+        raise ValueError("Unexpected signed timestamp format") from exc
+    return dt.replace(tzinfo=timezone.utc)
+
+
 def put_object_lock(client, *, bucket: str, key: str, raw: bytes,
                     retain_until: datetime) -> dict:
     """S3 Object Lock COMPLIANCE mode, with server-side retention verification."""
@@ -146,12 +160,16 @@ def execute_once(*, data_csv: Path, workdir: Path, game_id: str, away: str,
                                     tsa_url=tsa_url, ca_file=tsa_ca)
         if not attested["rfc3161_verified"] or attested["raw_sha256"] != _sha(raw):
             raise ValueError("Independent timestamp verification failed")
+        audit_raw = (tempdir / "tsa" / "timestamp-audit.json").read_bytes()
+        signed_at = tsa_signed_time(audit_raw)
+        if not now.astimezone(timezone.utc) - timedelta(minutes=1) <= signed_at < kickoff:
+            raise ValueError("TSA signed time outside prediction window")
         artifacts = {
             "prediction.json": raw,
             "historical-source.csv": data_csv.read_bytes(),
             "request.tsq": (tempdir / "tsa" / "request.tsq").read_bytes(),
             "response.tsr": (tempdir / "tsa" / "response.tsr").read_bytes(),
-            "timestamp-audit.json": (tempdir / "tsa" / "timestamp-audit.json").read_bytes(),
+            "timestamp-audit.json": audit_raw,
         }
         if _sha(artifacts["historical-source.csv"]) != inferred["input_sha256"]:
             raise ValueError("Historical source changed during inference")
