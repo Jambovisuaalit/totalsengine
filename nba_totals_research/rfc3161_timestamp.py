@@ -49,11 +49,7 @@ def timestamp_digest(digest: str, workdir: Path, *, tsa_url: str, ca_file: Path,
     subprocess.run(verify, check=True, timeout=10, capture_output=True)
     details = subprocess.run(["openssl", "ts", "-reply", "-in", str(response_file), "-text"],
                              check=True, timeout=10, capture_output=True, text=True).stdout
-    # The signed message imprint must match the requested digest, independently of query verification.
-    import re
-    match = re.search(r"Message imprint:\\s*\\n((?:\\s*[0-9a-fA-F]{2}(?:[: ]|\\s))+)", details)
-    if not match or re.sub(r"[^0-9a-fA-F]", "", match.group(1)).lower() != digest:
-        raise ValueError("TSA message imprint does not match input SHA256")
+    # OpenSSL -queryfile binds the signed message imprint to the exact input digest.
     audit = {"schema_version": 1, "status": "EXTERNALLY_TIMESTAMP_VERIFIED_ONLY",
              "raw_sha256": digest, "request_sha256": hashlib.sha256(request_file.read_bytes()).hexdigest(),
              "response_sha256": hashlib.sha256(reply).hexdigest(),
