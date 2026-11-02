@@ -248,3 +248,7 @@ body{line-height:1.6;color:var(--te-text)}
  .tile,.wide-panel,.chat-window{transition:none}
  .product-art:hover .wide-panel,.product-art:hover .chat-window{transform:none}
 }
+
+/* Subtle reading-progress accent; compositor-only scale on scroll. */
+.te-scroll-progress{position:fixed;top:0;left:0;z-index:110;width:100%;height:2px;pointer-events:none;background:linear-gradient(90deg,#ff8151,#ffbc80);transform:scaleX(0);transform-origin:left center;will-change:transform}
+@media(prefers-reduced-motion:reduce){.te-scroll-progress{transition:none}}
