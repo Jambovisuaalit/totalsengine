@@ -1,1 +1,2 @@
 One-time trigger to validate real GitHub Actions forward forecast execution on 2026-11-02. Research only; no bets, no publishing.
+Retry 2: regression CI green, ignore non-NBA event codes and preserve all raw source snapshots.
