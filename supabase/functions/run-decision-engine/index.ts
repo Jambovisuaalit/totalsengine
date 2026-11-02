@@ -198,7 +198,7 @@ Deno.serve(async (req) => {
       if (execOdds < MIN_ODDS || execOdds > MAX_ODDS) continue;
       if (isBlacklisted(exec.bookmaker, exec.market)) continue;
 
-      let key = `${exec.game_id}-${exec.market}-${exec.selection}`;
+      const key = `${exec.game_id}-${exec.market}-${exec.selection}`;
       let fairOdds = fairOddsMap.get(key);
 
       if (!fairOdds) {

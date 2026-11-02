@@ -27,7 +27,7 @@ function parseTimeToISO(timeStr: string, dateStr: string): string {
   const timeMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
   if (!timeMatch) return "";
   
-  let [, hours, minutes, period] = timeMatch;
+  const [, hours, minutes, period] = timeMatch;
   let hour = parseInt(hours);
   if (period.toUpperCase() === "PM" && hour !== 12) hour += 12;
   if (period.toUpperCase() === "AM" && hour === 12) hour = 0;

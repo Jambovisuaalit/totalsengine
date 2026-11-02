@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
           if (isNaN(odds) || odds <= 1) continue;
 
           // Map outcome to team name
-          let selectionName = sel.outcome === "home" ? homeName : sel.outcome === "away" ? awayName : sel.outcome;
+          const selectionName = sel.outcome === "home" ? homeName : sel.outcome === "away" ? awayName : sel.outcome;
           if (!selectionName) continue;
 
           const { error } = await supabase.from("execution_odds").upsert(
