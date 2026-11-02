@@ -148,10 +148,13 @@ def execute_once(*, data_csv: Path, workdir: Path, game_id: str, away: str,
             raise ValueError("Independent timestamp verification failed")
         artifacts = {
             "prediction.json": raw,
+            "historical-source.csv": data_csv.read_bytes(),
             "request.tsq": (tempdir / "tsa" / "request.tsq").read_bytes(),
             "response.tsr": (tempdir / "tsa" / "response.tsr").read_bytes(),
             "timestamp-audit.json": (tempdir / "tsa" / "timestamp-audit.json").read_bytes(),
         }
+        if _sha(artifacts["historical-source.csv"]) != inferred["input_sha256"]:
+            raise ValueError("Historical source changed during inference")
         prefix = f"nba-paper-v1/{game_id}/{inferred['model_version']}/{_sha(raw)}"
         archived = {}
         for name, data in artifacts.items():
