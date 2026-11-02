@@ -14,7 +14,7 @@ class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
-def timestamp_digest(digest: str, workdir: Path, *, tsa_url: str, ca_file: Path) -> dict:
+def timestamp_digest(digest: str, workdir: Path, *, tsa_url: str, ca_file: Path, signer_file: Path | None = None) -> dict:
     if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
         raise ValueError("Invalid SHA256 digest")
     u = urlparse(tsa_url)
@@ -37,9 +37,13 @@ def timestamp_digest(digest: str, workdir: Path, *, tsa_url: str, ca_file: Path)
     if len(reply) > 131072 or not reply:
         raise ValueError("Invalid TSA reply size")
     response_file.write_bytes(reply)
-    subprocess.run(["openssl", "ts", "-verify", "-queryfile", str(request_file),
-                    "-in", str(response_file), "-CAfile", str(ca_file)],
-                   check=True, timeout=10, capture_output=True)
+    verify = ["openssl", "ts", "-verify", "-queryfile", str(request_file),
+              "-in", str(response_file), "-CAfile", str(ca_file)]
+    if signer_file is not None:
+        if not signer_file.is_file():
+            raise ValueError("Pinned TSA signer certificate required")
+        verify.extend(["-untrusted", str(signer_file)])
+    subprocess.run(verify, check=True, timeout=10, capture_output=True)
     return {"rfc3161_verified": True, "raw_sha256": digest,
             "tsa_response_bytes": len(reply), "publication_allowed": False}
 
