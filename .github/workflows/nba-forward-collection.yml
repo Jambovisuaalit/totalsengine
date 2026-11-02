@@ -32,17 +32,7 @@ jobs:
         shell: bash
         run: |
           python -m nba_totals_research.scheduled_paper_collector --output "$RUNNER_TEMP/nba-paper"
-          python - <<'PY'
-          import json, os
-          from pathlib import Path
-          p = Path(os.environ["RUNNER_TEMP"]) / "nba-paper" / "manifest.json"
-          m = json.loads(p.read_bytes())
-          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
-              f.write("# NBA paper research only\n\n")
-              f.write(f"Source days: {m['n_source_days']}  \nGames: {m['n_games']}  \nForecasts: {m['n_forecasts']}  \n")
-              f.write(f"Prediction SHA-256: `{m['predictions_sha256']}`  \n")
-              f.write("Not independently timestamped; not verified; no odds, bets, or publisher.\n")
-          PY
+
       - name: Preserve research source snapshots and forecasts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
