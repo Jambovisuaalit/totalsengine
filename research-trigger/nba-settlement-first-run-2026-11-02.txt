@@ -1,0 +1,1 @@
+One-time trigger to verify GitHub Actions paper forecast artifact ingestion, result reconciliation and provisional report. No wagering or publishing.
