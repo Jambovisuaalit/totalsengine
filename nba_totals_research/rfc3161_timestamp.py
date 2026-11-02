@@ -4,6 +4,8 @@ Research only. Requires a separately approved TSA URL and pinned CA bundle.
 No proof is trusted until openssl ts -verify succeeds against that CA bundle.
 """
 from __future__ import annotations
+import hashlib
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -37,6 +39,7 @@ def timestamp_digest(digest: str, workdir: Path, *, tsa_url: str, ca_file: Path,
     if len(reply) > 131072 or not reply:
         raise ValueError("Invalid TSA reply size")
     response_file.write_bytes(reply)
+    # OpenSSL parses the ASN.1 token; malformed responses must fail closed.
     verify = ["openssl", "ts", "-verify", "-queryfile", str(request_file),
               "-in", str(response_file), "-CAfile", str(ca_file)]
     if signer_file is not None:
@@ -44,8 +47,28 @@ def timestamp_digest(digest: str, workdir: Path, *, tsa_url: str, ca_file: Path,
             raise ValueError("Pinned TSA signer certificate required")
         verify.extend(["-untrusted", str(signer_file)])
     subprocess.run(verify, check=True, timeout=10, capture_output=True)
+    details = subprocess.run(["openssl", "ts", "-reply", "-in", str(response_file), "-text"],
+                             check=True, timeout=10, capture_output=True, text=True).stdout
+    # The signed message imprint must match the requested digest, independently of query verification.
+    import re
+    match = re.search(r"Message imprint:\\s*\\n((?:\\s*[0-9a-fA-F]{2}(?:[: ]|\\s))+)", details)
+    if not match or re.sub(r"[^0-9a-fA-F]", "", match.group(1)).lower() != digest:
+        raise ValueError("TSA message imprint does not match input SHA256")
+    audit = {"schema_version": 1, "status": "EXTERNALLY_TIMESTAMP_VERIFIED_ONLY",
+             "raw_sha256": digest, "request_sha256": hashlib.sha256(request_file.read_bytes()).hexdigest(),
+             "response_sha256": hashlib.sha256(reply).hexdigest(),
+             "ca_sha256": hashlib.sha256(ca_file.read_bytes()).hexdigest(),
+             "signer_sha256": hashlib.sha256(signer_file.read_bytes()).hexdigest() if signer_file else None,
+             "openssl_signature_and_chain_verified": True, "message_imprint_verified": True,
+             "timestamp_response_text": details, "publication_allowed": False,
+             "gate_status": "NO_GO"}
+    audit_file = workdir / "timestamp-audit.json"
+    with audit_file.open("x", encoding="utf-8") as stream:
+        json.dump(audit, stream, indent=2, sort_keys=True)
+    os.chmod(audit_file, 0o600)
     return {"rfc3161_verified": True, "raw_sha256": digest,
-            "tsa_response_bytes": len(reply), "publication_allowed": False}
+            "tsa_response_bytes": len(reply), "response_sha256": audit["response_sha256"],
+            "publication_allowed": False, "gate_status": "NO_GO"}
 
 if __name__ == "__main__":
     raise SystemExit("Library only: provide approved TSA URL, CA bundle, and digest explicitly")
