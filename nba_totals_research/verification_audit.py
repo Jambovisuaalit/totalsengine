@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Mapping
 
 from .core import PaperAssessment
-from .verification_v2 import Authority, Envelope, ROLES, REQUIRED, assess_bundle
+from .verification_v2 import Authority, Envelope, ROLES, assess_bundle, verify_envelope
 
 def audit_bundle(ledger_dir: Path, receipt_file: Path, paper: PaperAssessment,
                  envelopes: Mapping[str, Envelope], roots: Mapping[tuple[str, str], Authority],
@@ -28,7 +28,7 @@ def audit_bundle(ledger_dir: Path, receipt_file: Path, paper: PaperAssessment,
             "role_matches": bool(root and root.role == role),
             "signature_b64_sha256": hashlib.sha256(item.signature_b64.encode()).hexdigest()
                 if isinstance(item, Envelope) else None,
-            "signature_and_claims_verified": False,
+            "signature_and_claims_verified": verify_envelope(item, role, roots, now=now)[0],
         }
     # Gate success requires successful signed-role verification inside assess_bundle.
     # Do not imply a gate success proves every subclaim without independent validation.
@@ -47,9 +47,6 @@ def audit_bundle(ledger_dir: Path, receipt_file: Path, paper: PaperAssessment,
         "publication_allowed": False,
         "decision": "NO_GO",
     }
-    # Role signature checks are reported conservatively: gate success is not a
-    # per-role signature verdict. Verification module must expose detailed checks
-    # before these can be individually reported as passed.
     return audit
 
 def write_audit(audit: dict, output: Path) -> Path:
