@@ -98,8 +98,8 @@ def extract(day_payloads: dict[str, bytes]) -> list[dict]:
                 raise
             row = {"source_game_id": str(event["id"]),
                    "scheduled_tipoff": iso(event["date"]).isoformat(),
-                   "away": team_code(participants["away"]["team"]["abbreviation"]),
-                   "home": team_code(participants["home"]["team"]["abbreviation"]),
+                   "away": away,
+                   "home": home,
                    "status": state}
             if state == "FINAL":
                 row["score_away"] = int(participants["away"]["score"])
@@ -181,8 +181,7 @@ def run(output_dir: Path, *, now: datetime | None = None,
     for day, payload in raw.items():
         (raw_dir / f"{day}.json").write_bytes(payload)
         snapshots[day] = digest(payload)
-    lines = b"".join(canonical(p) + b"
-" for p in predictions)
+    lines = b"".join(canonical(p) + bytes([10]) for p in predictions)
     (output_dir / "predictions.jsonl").write_bytes(lines)
     report = {
         "generated_at_host_utc": now.isoformat(), "n_source_days": len(raw),
