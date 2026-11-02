@@ -42,6 +42,9 @@ function test(ok, label, description) {
           tileCount:document.querySelectorAll(".feature-tiles .tile").length,
           cardBackground:s(".price-card").backgroundColor,
           phoneZ:[s(".device-left").zIndex,s(".device-main").zIndex,s(".device-right").zIndex],
+          mainPhone:rectangle(".device-main"),
+          progress:!!e(".te-scroll-progress"),
+          svgCount:document.querySelectorAll("svg.te-icon use").length,
           kpis:[...document.querySelectorAll(".proof-metrics small")].map(x=>x.textContent.trim()),
           kpiValues:[...document.querySelectorAll(".proof-metrics strong")].map(x=>x.textContent.trim()),
           badAnchors,
@@ -57,7 +60,9 @@ function test(ok, label, description) {
       const channel=(m.cardBackground.match(/\d+/g)||[]).slice(0,3).map(Number);
       test(channel.length===3 && channel.every(x=>x>=235),c.label,"Research-demo card is high-contrast light");
       test(Number(m.phoneZ[1])>Number(m.phoneZ[0]) && Number(m.phoneZ[1])>Number(m.phoneZ[2]),c.label,"Center phone is in front");
-      test(m.kpis.join("|")==="CLV avg|Win rate|Tracked ROI|Signals tracked" && m.kpiValues.every(x=>x==="—"),c.label,"Evidence has correct titles without invented ROI");
+      test(m.kpis.join("|")==="MAE|RMSE|Settled games|Verified edge" && m.kpiValues.every(x=>x==="—"),c.label,"Research metrics have no invented performance values");
+      test(m.mainPhone.left>=0 && m.mainPhone.right<=m.width,c.label,"Central phone fits viewport width");
+      test(m.progress && m.svgCount>=20,c.label,"SVG icons and scroll progress are present");
       test(m.badAnchors.length===0,c.label,"All page anchors resolve");
       test(m.disclosed && m.closed && m.checkout===0,c.label,"Non-commercial demo disclosed, payments disabled");
       test(errors.length===0,c.label,"No page errors: "+errors.join(","));
@@ -74,6 +79,20 @@ function test(ok, label, description) {
       await page.locator(".accordion details summary").first().click();
       test(await page.locator(".accordion details").first().getAttribute("open")!==null,c.label,"FAQ expansion works");
       await context.close();
+      const motionContext=await browser.newContext({viewport:{width:c.width,height:c.height},reducedMotion:"no-preference"});
+      const motionPage=await motionContext.newPage();
+      await motionPage.goto(base,{waitUntil:"load",timeout:45000});
+      const initialReveal=await motionPage.locator("[data-reveal]").count();
+      await motionPage.evaluate(()=>window.scrollTo(0,document.body.scrollHeight*.55));
+      await motionPage.waitForTimeout(900);
+      const motion=await motionPage.evaluate(()=>({
+        visible:document.querySelectorAll("[data-reveal].is-visible").length,
+        header:document.querySelector(".header")?.classList.contains("is-scrolled"),
+        progress:getComputedStyle(document.querySelector(".te-scroll-progress")).transform
+      }));
+      test(initialReveal>=12 && motion.visible>=8,c.label,"Scroll reveal activates");
+      test(motion.header && motion.progress!=="matrix(0, 0, 0, 1, 0, 0)",c.label,"Sticky header and scroll progress activate");
+      await motionContext.close();
     }
   } finally { await browser.close(); }
   const report={passed:checks.filter(x=>x.status==="PASS").length,failed,checks};
