@@ -50,6 +50,22 @@ class TestCollector(unittest.TestCase):
         games.append(game("future", "gs", "ny", NOW+timedelta(hours=8), "SCHEDULED"))
         self.assertEqual(forecast(games, at=NOW), [])
 
+    def test_non_nba_exhibition_team_is_skipped(self):
+        event = {"events": [
+            {"id":"exhibition","date":NOW.isoformat(),
+             "status":{"type":{"state":"post","completed":True}},
+             "competitions":[{"competitors":[
+                {"homeAway":"home","team":{"abbreviation":"NYK"},"score":"112"},
+                {"homeAway":"away","team":{"abbreviation":"LON"},"score":"90"}]}]},
+            {"id":"nba","date":NOW.isoformat(),
+             "status":{"type":{"state":"post","completed":True}},
+             "competitions":[{"competitors":[
+                {"homeAway":"home","team":{"abbreviation":"NYK"},"score":"112"},
+                {"homeAway":"away","team":{"abbreviation":"GSW"},"score":"108"}]}]}
+        ]}
+        rows = extract({"2026-11-02": json.dumps(event).encode()})
+        self.assertEqual([r["source_game_id"] for r in rows], ["nba"])
+
     def test_source_conflict_fails_closed(self):
         def event(start):
             return {"events":[{"id":"x","date":start.isoformat(),"status":{"type":{"state":"pre","completed":False}},
