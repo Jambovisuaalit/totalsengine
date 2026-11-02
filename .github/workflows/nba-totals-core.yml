@@ -23,4 +23,6 @@ jobs:
         with:
           persist-credentials: false
       - run: python3 --version
+      - name: Install pinned Ed25519 verification dependency
+        run: python3 -m pip install "cryptography==46.0.4"
       - run: python3 -m unittest discover -s tests_nba_totals -p 'test_*.py' -v
