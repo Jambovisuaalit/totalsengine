@@ -1,5 +1,6 @@
 """Synthetic unit tests for prospective inference and WORM archiving."""
 import csv
+import json
 import io
 import tempfile
 import unittest
@@ -7,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 from nba_totals_research.forward_pipeline import (
-    infer_rolling_team_total, put_object_lock, execute_once)
+    infer_rolling_team_total, put_object_lock, execute_once, tsa_signed_time)
 
 NOW = datetime(2026, 11, 2, 16, tzinfo=timezone.utc)
 ROWS = [
@@ -77,6 +78,14 @@ class TestForwardPipeline(unittest.TestCase):
         with self.assertRaises(ValueError):
             put_object_lock(FakeS3(corrupt=True), bucket="test",
                             key="record", raw=b"abc", retain_until=deadline)
+
+    def test_tsa_signed_time_requires_unique_valid_timestamp(self):
+        payload = json.dumps({"timestamp_response_text":
+            "Status: Granted.\\nTime stamp: Nov  2 17:01:12 2026 GMT\\n"}).encode()
+        self.assertEqual(tsa_signed_time(payload),
+            datetime(2026, 11, 2, 17, 1, 12, tzinfo=timezone.utc))
+        with self.assertRaises(ValueError):
+            tsa_signed_time(b'{"timestamp_response_text":"no timestamp"}')
 
     def test_rights_gate_fails_before_inference(self):
         with self.assertRaises(ValueError):
