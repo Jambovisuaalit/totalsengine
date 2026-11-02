@@ -1,0 +1,26 @@
+name: NBA totals evidence core (synthetic)
+on:
+  push:
+    branches:
+      - research/nba-totals-evidence-core-v0
+    paths:
+      - nba_totals_research/**
+      - tests_nba_totals/**
+      - .github/workflows/nba-totals-core.yml
+  pull_request:
+    paths:
+      - nba_totals_research/**
+      - tests_nba_totals/**
+      - .github/workflows/nba-totals-core.yml
+permissions:
+  contents: read
+jobs:
+  offline-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - run: python3 --version
+      - run: python3 -m unittest discover -s tests_nba_totals -p 'test_*.py' -v
