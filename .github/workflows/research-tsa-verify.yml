@@ -17,6 +17,7 @@ jobs:
       HALTED: "1"
       PUBLICATION_ALLOWED: "false"
       OBSERVATION_SHA256: ${{ inputs.observation_sha256 }}
+      TSA_AUDIT_OUTPUT: "${{ runner.temp }}/tsa-audit"
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -27,3 +28,11 @@ jobs:
           [[ "$OBSERVATION_SHA256" =~ ^[0-9a-f]{64}$ ]]
       - name: Request and verify RFC3161 timestamp (fail closed)
         run: python3 -m nba_totals_research.tsa_probe
+      - name: Upload independently verified timestamp evidence
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: freetsa-rfc3161-evidence
+          path: ${{ runner.temp }}/tsa-audit/
+          retention-days: 7
+          if-no-files-found: error
