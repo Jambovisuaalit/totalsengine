@@ -44,7 +44,7 @@ class TestCollector(unittest.TestCase):
 
     def test_final_within_48_hours_excluded(self):
         games = [
-            game(str(i), team, "bos", NOW-timedelta(days=5-i), points=100)
+            game(str(i), team, "bos", NOW-timedelta(days=3-i), points=100)
             for team in ["gs", "ny"] for i in range(3)
         ]
         games.append(game("future", "gs", "ny", NOW+timedelta(hours=8), "SCHEDULED"))
