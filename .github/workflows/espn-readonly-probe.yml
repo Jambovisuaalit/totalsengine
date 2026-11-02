@@ -1,0 +1,34 @@
+name: ESPN read-only evidence probe
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/nba-v2-external-evidence-integration
+    paths:
+      - nba_totals_research/espn_probe.py
+      - nba_totals_research/schedule_observer.py
+      - nba_totals_research/external_integration.py
+      - nba_totals_research/rfc3161_timestamp.py
+      - tests_nba_totals/test_rfc3161_timestamp.py
+      - .github/workflows/espn-readonly-probe.yml
+permissions:
+  contents: read
+jobs:
+  isolated-external-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONPATH: "."
+      PUBLICATION_ALLOWED: "false"
+      HALTED: "1"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install Python test dependencies
+        run: python3 -m pip install --disable-pip-version-check cryptography
+      - name: Full NBA research regression suite
+        run: python3 -m unittest discover -s tests_nba_totals -p 'test_*.py' -v
+      - name: One read-only external GET (no bookmaker/publisher credentials)
+        run: python3 -m nba_totals_research.espn_probe
