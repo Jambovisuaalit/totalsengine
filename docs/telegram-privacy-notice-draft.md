@@ -1,11 +1,11 @@
 # TotalsEngine Telegram Privacy Notice — publication draft (2 November 2026)
 
-**DRAFT — DO NOT PUBLISH AS FINAL.** TotalsEngine's legal data controller, registered address and privacy contact have not yet been confirmed.
+**INTERIM REVIEW — not yet legally approved.** The user has identified Jami Harju as the temporary data controller and hello@ghoulhouse.fi as privacy contact. The controller's service address, Vercel tier and data retention criteria still require verification.
 
 ## Data controller
-Legal entity: [VERIFY]
-Address/jurisdiction: [VERIFY]
-Contact for privacy requests: [VERIFY]
+Data controller (individual, interim): **Jami Harju**
+Contact for privacy requests: **hello@ghoulhouse.fi**
+Postal/service address and jurisdiction: **[PENDING VERIFICATION]**
 
 ## Data handled
 When a person sends a Telegram command to @TotalsEngine_bot, Telegram can include the chat ID, chat type, update ID, command, sender user ID, username, display name and message metadata. TotalsEngine's reviewed server-side webhook code reads the chat ID and command text, checks group authorization, requests NBA fixture data, and sends a response. It contains no explicit database write or custom logging of Telegram messages. Telegram itself retains information under its own privacy rules.
@@ -26,13 +26,15 @@ Telegram supplies incoming updates and delivers replies. Vercel hosts functions 
 **Privacy requests:** separate record retention and deletion workflows remain to be specified. Data is otherwise to be limited to what is needed for operation and documented legal obligations. GDPR imposes storage limitation but no universal fixed period.
 
 ## Your rights
-Where applicable, individuals can request access, correction, deletion, restriction and portability, object to processing and complain to their competent data protection authority. Use [VERIFIED PRIVACY CONTACT] for requests.
+Where applicable, individuals can request access, correction, deletion, restriction and portability, object to processing and complain to their competent data protection authority. Use hello@ghoulhouse.fi for requests.
 
 ## Security
 The application validates a secret Telegram webhook header and permits group commands only in an explicitly configured group. Ordinary group chat messages are not intentionally answered. Review of platform logging, access controls, rate limits and idempotency is pending.
 
 ## Conditions for publication
-- [ ] Confirm legal data controller name/address and usable privacy contact.
+- [x] Temporary controller name provided: Jami Harju.
+- [x] Privacy email provided: hello@ghoulhouse.fi (mailbox deliverability not independently tested).
+- [ ] Confirm postal/service address and jurisdiction.
 - [ ] Verify actual Vercel plan, runtime log retention and any additional processors.
 - [ ] Confirm international transfers and security measures.
 - [ ] Confirm the legal basis and privacy-rights workflow.
