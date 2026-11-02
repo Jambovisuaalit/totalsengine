@@ -1,9 +1,5 @@
 name: NBA forward paper forecast — research only
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'research-trigger/nba-ledger-smoke-2026-11-02.txt'
   schedule:
     - cron: "15 16 * * *"
   workflow_dispatch:
