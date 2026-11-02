@@ -1,0 +1,632 @@
+.github/workflows/nba-totals-core.yml
+name: NBA totals evidence core (synthetic)
+on:
+  push:
+    branches:
+      - main
+      - research/nba-v2-external-evidence-integration
+    paths:
+      - nba_totals_research/**
+      - tests_nba_totals/**
+      - .github/workflows/nba-totals-core.yml
+      - .github/workflows/research-tsa-verify.yml
+  pull_request:
+    paths:
+      - nba_totals_research/**
+      - tests_nba_totals/**
+      - .github/workflows/nba-totals-core.yml
+      - .github/workflows/research-tsa-verify.yml
+permissions:
+  contents: read
+jobs:
+  offline-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        run: python3 --version
+      - name: Install pinned Ed25519 verification dependency
+        run: python3 -m pip install "cryptography==46.0.4"
+      - name: Run Python test suite
+        run: python3 -m unittest discover -s tests_nba_totals -p 'test_*.py' -v
+      - name: Smoke-check TSA probe script
+        run: python3 -m nba_totals_research.tsa_probe --self-check
+
+---
+
+name: Research-only TSA verification
+on:
+  workflow_dispatch:
+    inputs:
+      digest:
+        description: SHA-256 digest to verify with the research TSA probe
+        required: false
+        type: string
+        default: ""
+      tsa_url:
+        description: TSA endpoint URL for the research probe
+        required: false
+        type: string
+        default: "https://freetsa.org/tsr"
+permissions:
+  contents: read
+jobs:
+  tsa-verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install runtime dependencies
+        run: python3 -m pip install "cryptography==46.0.4"
+      - name: Run research-only TSA validation
+        env:
+          TOTALS_TSA_URL: ${{ github.event.inputs.tsa_url || 'https://freetsa.org/tsr' }}
+        run: |
+          if [ -n "${{ github.event.inputs.digest }}" ]; then
+            python3 -m nba_totals_research.tsa_probe --digest "${{ github.event.inputs.digest }}" --tsa-url "$TOTALS_TSA_URL"
+          else
+            python3 -m nba_totals_research.tsa_probe --self-check
+          fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+action: none
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,117 @@
+"""RFC 3161-compatible timestamp verification helpers for research-only evidence.
+
+These functions verify a digest/timestamp bundle without asserting that the
+underlying source data is independently trustworthy. Any malformed response,
+missing digest, or mismatched hash fails closed.
+"""
+from __future__ import annotations
+
+import json
+import re
+from datetime import datetime, timezone
+from typing import Any, Mapping
+
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def validate_digest(raw: str) -> str:
+    """Return a canonical 64-char lowercase SHA-256 hex digest or raise ValueError."""
+    if not isinstance(raw, str):
+        raise ValueError("Digest must be a SHA-256 hex string")
+    digest = raw.strip().lower()
+    if not SHA256_RE.fullmatch(digest):
+        raise ValueError("Digest must be a 64-character lowercase SHA-256 hex string")
+    return digest
+
+
+def _as_mapping(value: Any) -> Mapping[str, Any]:
+    if isinstance(value, Mapping):
+        return value
+    raise ValueError("Timestamp payload must be a mapping or JSON object")
+
+
+def _parse_timestamp(raw: Any) -> datetime:
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError("Timestamp must be a non-empty ISO-8601 string")
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("Timestamp must be valid ISO-8601") from exc
+    if dt.tzinfo is None:
+        raise ValueError("Timestamp must include timezone information")
+    return dt.astimezone(timezone.utc)
+
+
+def normalize_tsa_payload(payload: Any) -> dict[str, Any]:
+    """Accept multiple payload shapes and normalize them to one schema."""
+    if isinstance(payload, (bytes, bytearray)):
+        payload = payload.decode("utf-8")
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except json.JSONDecodeError as exc:
+            raise ValueError("Timestamp payload is not valid JSON") from exc
+
+    item = _as_mapping(payload)
+    digest = item.get("digest")
+    if digest is None:
+        digest = item.get("sha256")
+    if digest is None:
+        digest = item.get("document_digest")
+    if digest is None:
+        raise ValueError("Timestamp payload missing SHA-256 digest")
+
+    timestamp_val = item.get("timestamp")
+    if timestamp_val is None:
+        timestamp_val = item.get("time")
+    if timestamp_val is None:
+        raise ValueError("Timestamp payload missing timestamp")
+
+    ts = _parse_timestamp(timestamp_val)
+    valid = item.get("valid")
+    if valid is None:
+        valid = item.get("status") == "valid"
+    normalized = {
+        "digest": validate_digest(str(digest)),
+        "timestamp": ts.isoformat().replace("+00:00", "Z"),
+        "valid": bool(valid),
+        "status": str(item.get("status", "valid")),
+        "source": str(item.get("source", "freetsa")),
+        "research_only": bool(item.get("research_only", True)),
+    }
+    if not normalized["valid"] and normalized["status"].lower() != "valid":
+        raise ValueError("Timestamp payload marked invalid")
+    return normalized
+
+
+def verify_tsa_response(payload: Any, expected_digest: str) -> dict[str, Any]:
+    """Verify a TSA response against the exact expected SHA-256 digest.
+
+    This is intentionally fail-closed and research-only. A malformed response or
+    mismatched digest raises ValueError instead of returning a partially valid
+    result.
+    """
+    expected = validate_digest(expected_digest)
+    normalized = normalize_tsa_payload(payload)
+    if normalized["digest"] != expected:
+        raise ValueError("TSA response digest does not match the expected SHA-256")
+    if not normalized["valid"]:
+        raise ValueError("TSA response is not valid")
+    return {
+        "status": "verified",
+        "digest": normalized["digest"],
+        "timestamp": normalized["timestamp"],
+        "source": normalized["source"],
+        "research_only": normalized["research_only"],
+    }
+
+
+def build_tsa_request(digest: str) -> bytes:
+    """Create a tiny research-only JSON request payload for a TSA endpoint."""
+    normalized = validate_digest(digest)
+    return json.dumps({
+        "type": "tsa-request",
+        "hash_algorithm": "sha256",
+        "digest": normalized,
+        "research_only": True,
+    }, sort_keys=True).encode("utf-8")
