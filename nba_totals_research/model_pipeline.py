@@ -27,7 +27,8 @@ class Dataset:
     game_id: str
 
     def validate(self, prediction_at: datetime) -> None:
-        UUID(self.game_id)
+        if str(UUID(self.game_id)) != self.game_id:
+            raise ValueError("Canonical game identifier required")
         if not self.source or not self.license_reference or not SHA.fullmatch(self.sha256):
             raise ValueError("Source, license reference and dataset hash required")
         if utc(self.observed_at) > utc(self.available_at) or utc(self.available_at) > utc(prediction_at):
@@ -84,7 +85,8 @@ class ModelPrediction:
         probs = (self.p_win, self.p_push, self.p_lose)
         if any(not isinstance(p, Decimal) or not p.is_finite() or p < 0 or p > 1 for p in probs):
             raise ValueError("Invalid outcome probabilities")
-        if sum(probs) != Decimal("1") or not self.expected_total.is_finite():
+        if (sum(probs) != Decimal("1") or not isinstance(self.expected_total, Decimal)
+                or not self.expected_total.is_finite()):
             raise ValueError("Invalid probability mass or expected total")
 
 def artifact_manifest(spec: PipelineSpec, paths: Mapping[str, Path],
