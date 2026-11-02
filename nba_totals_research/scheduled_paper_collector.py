@@ -87,6 +87,15 @@ def extract(day_payloads: dict[str, bytes]) -> list[dict]:
             status = event["status"]["type"]
             state = "FINAL" if status.get("completed") is True else (
                 "SCHEDULED" if status.get("state") == "pre" else "LIVE")
+            # ESPN occasionally includes exhibition or non-NBA teams in this feed.
+            # Never manufacture an NBA ID for an unrecognized participant.
+            try:
+                away = team_code(participants["away"]["team"]["abbreviation"])
+                home = team_code(participants["home"]["team"]["abbreviation"])
+            except ValueError as exc:
+                if str(exc).startswith("Unknown NBA team: "):
+                    continue
+                raise
             row = {"source_game_id": str(event["id"]),
                    "scheduled_tipoff": iso(event["date"]).isoformat(),
                    "away": team_code(participants["away"]["team"]["abbreviation"]),
@@ -172,7 +181,8 @@ def run(output_dir: Path, *, now: datetime | None = None,
     for day, payload in raw.items():
         (raw_dir / f"{day}.json").write_bytes(payload)
         snapshots[day] = digest(payload)
-    lines = b"".join(canonical(p) + b"\n" for p in predictions)
+    lines = b"".join(canonical(p) + b"
+" for p in predictions)
     (output_dir / "predictions.jsonl").write_bytes(lines)
     report = {
         "generated_at_host_utc": now.isoformat(), "n_source_days": len(raw),
