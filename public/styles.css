@@ -68,3 +68,183 @@
 @media(prefers-reduced-motion:reduce){
   .tile:hover{transform:none}
 }
+
+
+/* TotalsEngine visual QA v2 — readable type, consistent SVG icons,
+   balanced editorial spacing and accessible scroll motion. */
+:root{--te-text:#f7f5f3;--te-muted:#b7b4bd;--te-soft:#a6a2ae;--te-accent:#ff9d66}
+.te-icon-sprite{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.te-icon{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:middle}
+.strip-icon .te-icon,.tile-icon .te-icon{width:21px;height:21px}
+.check-icon{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;flex:none;color:var(--te-accent)}
+.check-icon .te-icon{width:16px;height:16px}
+.btn .te-icon,.nav-button .te-icon,.tile-footer .te-icon{width:15px;height:15px}
+.card-arrow .te-icon{width:12px;height:12px}
+html{scroll-behavior:smooth;scroll-padding-top:108px}
+body{line-height:1.6;color:var(--te-text)}
+.wrap{max-width:1180px;width:calc(100% - 72px)}
+.header{height:78px;position:sticky;top:0;z-index:80;transition:background .3s,border-color .3s,box-shadow .3s;background:rgba(7,8,11,.83);border-bottom:1px solid rgba(255,255,255,.09)}
+.header.is-scrolled{background:rgba(7,8,11,.95);border-color:rgba(255,255,255,.14);box-shadow:0 10px 34px rgba(0,0,0,.3)}
+.logo{font-size:15px;letter-spacing:-.05em}.logo-alt{color:var(--te-accent)}
+.nav-links{gap:29px}.nav-links a,.nav-button{font-size:13px;color:#ccc7ce}
+.nav-links a[aria-current=location]{color:var(--te-accent)}
+.nav-button{border-color:rgba(255,255,255,.27);min-height:42px;padding:10px 17px}
+.hero{min-height:0;padding:105px 0 0}.hero-inner{max-width:1200px}
+.announcement{font-size:11px;letter-spacing:.1em;color:#f1c6ad;gap:12px}
+.hero h1{font-size:clamp(58px,6.3vw,91px);line-height:1.055;letter-spacing:-.075em;max-width:1070px;margin:33px auto 25px;text-wrap:balance}
+.hero-lead{font-size:17px;line-height:1.78;color:var(--te-muted);max-width:640px;text-wrap:pretty}
+.hero-actions{margin:32px 0 20px;gap:12px}
+.btn{min-height:52px;padding:14px 27px;font-size:13px;gap:15px}
+.hero-caption{font-size:11px;color:#aba5ad;letter-spacing:.01em}
+.device-theater{margin-top:50px}
+.device-disclosure{font-size:10px;letter-spacing:.07em;color:#c6b8b8}
+.floating-note strong{font-size:13px}.floating-note>span:last-child{color:#bcb6bb;font-size:11px}
+.strip-inner>div{font-size:11px;color:#d3cdd0;letter-spacing:.055em;gap:12px}
+.section{padding:116px 0}
+.section-heading.centered{max-width:800px;margin-bottom:58px}
+.section h2{font-size:clamp(42px,4.45vw,64px);line-height:1.14;letter-spacing:-.06em;text-wrap:balance}
+.section h2 span,.product-copy h2 span,.faq-heading h2 span{color:#b4aeb8}
+.eyebrow{font-size:11px;letter-spacing:.12em;margin-bottom:18px}
+.section-heading p{font-size:16px;max-width:635px;margin-top:22px;line-height:1.75;color:#b5b0bc;text-wrap:pretty}
+.feature-tiles{gap:22px}
+.tile{min-height:305px;padding:30px;border-radius:22px;transition:transform .35s cubic-bezier(.2,.7,.2,1),border-color .3s,box-shadow .3s}
+.tile:hover{transform:translateY(-7px);border-color:rgba(255,157,102,.38);box-shadow:0 18px 45px rgba(0,0,0,.24)}
+.tile-icon{width:46px;height:46px;border-radius:13px;background:rgba(255,157,102,.085);border-color:rgba(255,157,102,.17);color:#ffab79}
+.tile h3{font-size:22px;line-height:1.25;letter-spacing:-.045em;margin-top:32px}
+.tile p{font-size:14px;line-height:1.75;color:#b6b2bd;max-width:340px}
+.tile-footer{font-size:10px;color:#c5b9ba;letter-spacing:.07em}
+.product-section{padding-top:42px;padding-bottom:52px}
+.product-row,.product-row-b{gap:9%;padding:91px 0;align-items:center}
+.product-copy{max-width:530px}
+.product-copy h2{font-size:clamp(42px,4.15vw,60px);line-height:1.13;letter-spacing:-.055em;text-wrap:balance}
+.product-copy p{font-size:16px;line-height:1.75;color:#b4b0bd;max-width:520px;margin:22px 0 30px}
+.benefit-list{gap:14px}.benefit-list li{font-size:14px;color:#e1dce3}
+.product-art{min-height:470px;border-radius:24px}
+.art-mini-label{font-size:10px;color:#c0b2b0;letter-spacing:.08em}
+.wide-panel{transform:rotate(-1deg);max-width:470px}
+.panel-heading span{font-size:15px}.panel-heading strong{font-size:39px}
+.quotes span{font-size:9px;color:#b1a8b1}.quotes b{font-size:22px}
+.panel-warning{font-size:11px;color:#c6b6b6}
+.chat-window{transform:rotate(1.5deg)}
+.chat-head strong{font-size:14px}.chat-bubble h3{font-size:18px}
+.chat-bubble p{font-size:12px;color:#d0c8cd}
+.chat-facts{font-size:11px}.chat-foot{font-size:10px;color:#c6b8c0}
+.evidence-section .section-heading{max-width:740px}
+.proof-dashboard{max-width:1050px;margin-inline:auto}
+.proof-dashboard-head h3{font-size:26px}.proof-metrics small{font-size:13px;color:#c5c0c8}
+.proof-metrics strong{font-size:34px}.proof-metrics>div>span{font-size:12px;color:#b5afbb}
+.proof-check strong{font-size:13px}.proof-check small{font-size:11px;color:#b6afbd}
+.proof-note{font-size:12px;color:#aaa1ac;max-width:760px}
+.pricing-grid{gap:11%}
+.pricing-copy h2{font-size:clamp(43px,4.5vw,64px);line-height:1.13}
+.pricing-copy>p{font-size:16px;line-height:1.76;color:#b9b3c0}
+.pricing-points{font-size:14px;color:#e2dce3}
+.price-card{border-radius:24px;padding:34px 36px}
+.price-card-head{font-size:10px}.price-card h3{font-size:26px}
+.price-card>p{font-size:14px;color:#55505a}
+.price-card li{font-size:13px;line-height:1.5}
+.price-caveat{font-size:12px}
+.price-faq{font-size:12px}
+.faq-grid{gap:10%}.faq-heading h2{font-size:clamp(42px,4vw,58px);line-height:1.14;letter-spacing:-.055em}
+.faq-heading p{font-size:15px;line-height:1.8;color:#b9b4bd}
+.accordion summary{font-size:15px;padding:25px 34px 25px 0;color:#efecf0}
+.accordion details p{font-size:14px;line-height:1.8;color:#bdb8c3}
+.cta-inner{height:auto;min-height:505px;padding:94px 26px 0;border-radius:30px}
+.cta-inner h2{font-size:clamp(44px,4.9vw,69px);line-height:1.1}
+.cta-inner>p{font-size:15px;color:#d0bec2}
+.cta-mini small{font-size:11px;color:#c0b5be}
+.footer{padding-top:64px}.footer-brand p{font-size:13px;color:#b9b0bb}
+.footer-group{font-size:13px;gap:13px;color:#bcb3bd}
+.footer-group strong{font-size:13px}
+.footer-bottom{font-size:12px;color:#aca4af}
+.section,.product-row,.tile,.product-art,.proof-dashboard{scroll-margin-top:100px}
+@media(hover:hover) and (pointer:fine){
+ .wide-panel,.chat-window{transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s}
+ .product-art:hover .wide-panel{transform:rotate(0) translateY(-6px);box-shadow:0 26px 66px #0008}
+ .product-art:hover .chat-window{transform:rotate(0) translateY(-6px)}
+}
+/* Reveal only after JS marks page ready; no blank content if JS is blocked. */
+.motion-ready [data-reveal]{opacity:0;transform:translate3d(0,26px,0);transition:opacity .72s cubic-bezier(.2,.75,.2,1),transform .72s cubic-bezier(.2,.75,.2,1)}
+.motion-ready [data-reveal].is-visible{opacity:1;transform:translate3d(0,0,0)}
+.motion-ready .feature-tiles [data-reveal]:nth-child(2){transition-delay:90ms}
+.motion-ready .feature-tiles [data-reveal]:nth-child(3){transition-delay:160ms}
+.motion-ready .proof-metrics [data-reveal]:nth-child(2){transition-delay:70ms}
+.motion-ready .proof-metrics [data-reveal]:nth-child(3){transition-delay:140ms}
+.motion-ready .proof-metrics [data-reveal]:nth-child(4){transition-delay:210ms}
+@media(max-width:1040px){
+ .wrap{width:calc(100% - 54px)}
+ .nav-links{gap:17px}
+ .feature-tiles{gap:15px}
+ .tile{padding:25px}
+ .product-row{gap:6%}
+}
+@media(max-width:780px){
+ .wrap{width:calc(100% - 40px)}
+ .header{height:70px}
+ .mobile-menu:not([hidden]){top:70px}
+ .hero{padding-top:77px}
+ .hero h1{font-size:clamp(47px,8.6vw,70px)}
+ .hero-lead{font-size:15px}
+ .device-theater{margin-top:36px}
+ .strip-inner>div{font-size:10px}
+ .section{padding:88px 0}
+ .section-heading p{font-size:15px}
+ .feature-tiles{grid-template-columns:1fr}
+ .tile{min-height:0;padding:26px}
+ .tile h3{font-size:20px;margin-top:24px}
+ .tile p{font-size:14px}
+ .product-row,.product-row-b{grid-template-columns:1fr;gap:32px;padding:55px 0}
+ .product-copy{max-width:640px}
+ .product-copy p{font-size:15px}
+ .product-art{min-height:425px}
+ .proof-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pricing-grid{grid-template-columns:1fr;gap:45px}
+ .price-card{max-width:550px}
+ .faq-grid{grid-template-columns:1fr;gap:32px}
+}
+@media(max-width:570px){
+ .wrap{width:calc(100% - 36px)}
+ .announcement{font-size:9px;line-height:1.5;max-width:100%;text-align:left}
+ .hero{padding-top:58px}
+ .hero h1{font-size:clamp(39px,10.3vw,55px);line-height:1.08;letter-spacing:-.07em}
+ .hero-lead{font-size:14px;line-height:1.7;max-width:350px}
+ .hero-caption{font-size:10px;line-height:1.5}
+ .device-theater{height:430px;margin-top:38px}
+ .section{padding:74px 0}
+ .section h2{font-size:clamp(34px,9vw,45px)}
+ .section-heading.centered{margin-bottom:34px}
+ .section-heading p{font-size:14px}
+ .tile{padding:26px}
+ .tile p{font-size:13px}
+ .product-section{padding:20px 0 35px}
+ .product-row{padding:38px 0}
+ .product-copy h2{font-size:clamp(36px,9vw,45px)}
+ .product-copy p{font-size:14px;line-height:1.75}
+ .benefit-list li{font-size:13px}
+ .product-art{min-height:370px;padding:48px 14px 26px}
+ .wide-panel{transform:none}
+ .chat-window{transform:none}
+ .proof-dashboard-head{padding:22px}
+ .proof-metrics>div{padding:22px 15px}
+ .proof-metrics small{font-size:12px}
+ .proof-metrics strong{font-size:31px}
+ .proof-bottom{padding:22px}
+ .pricing-copy h2{font-size:clamp(37px,9vw,48px)}
+ .pricing-copy>p{font-size:14px}
+ .price-card{padding:28px 23px}
+ .price-card>p{font-size:13px}
+ .price strong{font-size:60px}
+ .faq-heading p{font-size:14px}
+ .accordion summary{font-size:14px}
+ .accordion details p{font-size:13px}
+ .cta-inner{min-height:485px;padding:73px 22px 0}
+ .cta-inner h2{font-size:clamp(38px,9vw,52px)}
+ .cta-inner>p{font-size:14px}
+ .footer-group{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .motion-ready [data-reveal],.motion-ready [data-reveal].is-visible{opacity:1;transform:none;transition:none}
+ .tile,.wide-panel,.chat-window{transition:none}
+ .product-art:hover .wide-panel,.product-art:hover .chat-window{transform:none}
+}
