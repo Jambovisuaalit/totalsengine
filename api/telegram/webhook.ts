@@ -2,7 +2,8 @@ import { processTelegramUpdate } from "../../server/telegram-webhook.mjs";
 export async function POST(request: Request) {
  return processTelegramUpdate(request,{
   secret:process.env.TELEGRAM_WEBHOOK_SECRET,
-  token:process.env.TELEGRAM_BOT_TOKEN
+  token:process.env.TELEGRAM_BOT_TOKEN,
+  nbaApiKey:process.env.BALLDONTLIE_API_KEY
  });
 }
 export function GET() {
