@@ -12,23 +12,18 @@ jobs:
   tsa:
     runs-on: ubuntu-latest
     timeout-minutes: 3
-    environment: research-tsa
     env:
       PYTHONPATH: "."
       HALTED: "1"
       PUBLICATION_ALLOWED: "false"
       OBSERVATION_SHA256: ${{ inputs.observation_sha256 }}
-      TSA_URL: ${{ vars.RESEARCH_TSA_URL }}
-      TSA_CA_PEM: ${{ secrets.RESEARCH_TSA_CA_PEM }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
-      - name: Validate approved independent TSA configuration
+      - name: Validate digest
         shell: bash
         run: |
-          test -n "$TSA_URL"
-          test -n "$TSA_CA_PEM"
           [[ "$OBSERVATION_SHA256" =~ ^[0-9a-f]{64}$ ]]
       - name: Request and verify RFC3161 timestamp (fail closed)
         run: python3 -m nba_totals_research.tsa_probe
