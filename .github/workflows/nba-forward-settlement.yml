@@ -4,7 +4,7 @@ on:
     - cron: "45 17 * * *"
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   actions: read
 jobs:
   settle:
@@ -41,3 +41,7 @@ jobs:
           path: ${{ runner.temp }}/nba-settlement/
           retention-days: 30
           if-no-files-found: error
+      - name: Persist derived settlements in GitHub research ledger (create-only)
+        shell: bash
+        run: |
+          python -m nba_totals_research.research_ledger settlements --directory "$RUNNER_TEMP/nba-settlement" --run-id "$GITHUB_RUN_ID"
