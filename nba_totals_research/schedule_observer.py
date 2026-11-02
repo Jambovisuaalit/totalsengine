@@ -10,7 +10,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
 @dataclass(frozen=True)
@@ -34,7 +34,11 @@ def observe_espn_nba_schedule(day: date, *, timeout: float = 8.0) -> ScheduleObs
     request = Request(url, headers={"Accept": "application/json",
                                     "User-Agent": "TotalsEngineResearch/2.0"},
                       method="GET")
-    with urlopen(request, timeout=timeout) as response:
+    class NoRedirect(HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    with build_opener(NoRedirect()).open(request, timeout=timeout) as response:
         if response.geturl() != url:
             raise ValueError("Redirect forbidden")
         if response.status != 200:
