@@ -1,1 +1,2 @@
 Test settlement using both original Actions artifacts and new GitHub long-term ledger (research only).
+Repeat after automatic backfill of first 15 verified Actions forecasts, with explicit late-import marker.
