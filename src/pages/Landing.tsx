@@ -53,7 +53,7 @@ const Landing = () => {
 
       <a href="#content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-black">Skip to content</a>
       <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#08090e]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-[74px] max-w-[1200px] items-center justify-between gap-5 px-5 sm:px-8">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-5 sm:h-[74px] sm:px-8">
           <Link to="/" className="inline-flex shrink-0 items-center gap-3" aria-label="TotalsEngine home">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ff9b65] text-[#16100d]"><BarChart3 className="h-5 w-5" strokeWidth={2.6}/></span>
             <span className="text-[17px] font-bold tracking-[-0.045em] text-white">TOTALS<span className="font-normal text-[#ff9b65]">ENGINE</span></span>
@@ -74,20 +74,20 @@ const Landing = () => {
         <section className="relative overflow-hidden border-b border-white/[0.08]" aria-labelledby="landing-title">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-50" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px)", backgroundSize: "66px 66px", maskImage: "linear-gradient(to bottom,black,transparent 95%)" }}/>
           <div aria-hidden="true" className="pointer-events-none absolute -top-48 left-[54%] h-[630px] w-[630px] rounded-full bg-[#9b4524]/[0.14] blur-[130px]" />
-          <div className="relative mx-auto grid max-w-[1200px] items-center gap-14 px-5 pb-20 pt-20 sm:px-8 lg:grid-cols-[1fr_.91fr] lg:gap-16 lg:pb-28 lg:pt-28">
+          <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-5 pb-16 pt-14 sm:gap-14 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[1fr_.91fr] lg:gap-16 lg:pb-28 lg:pt-28">
             <div>
               <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-[#ff9b65]/25 bg-[#ff9b65]/[0.08] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ffb18a]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#ff9b65]"/> NBA TOTALS / FORWARD RESEARCH
               </div>
-              <h1 id="landing-title" className="max-w-[650px] text-[clamp(3.5rem,6.6vw,6.4rem)] font-semibold leading-[0.99] tracking-[-0.075em] text-white">
+              <h1 id="landing-title" className="max-w-[650px] text-[clamp(2.85rem,13vw,6.4rem)] font-semibold leading-[0.99] tracking-[-0.075em] text-white">
                 Read the game.<br/><span className="text-[#ff9b65]">Measure the model.</span>
               </h1>
               <p className="mt-8 max-w-[550px] text-base leading-[1.85] text-[#a7a7b2] sm:text-lg">
                 NBA totals analysis built around a simple principle: record the prediction before the game, measure it after the final buzzer, and let the evidence do the talking.
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
-                <a href="/research-preview.html" className="inline-flex min-h-[52px] items-center gap-3 rounded-xl bg-[#ff9b65] px-6 text-sm font-bold text-[#160f0b] transition-colors hover:bg-[#ffb58c]">Explore the interface <ArrowUpRight className="h-4 w-4"/></a>
-                <a href="#how-it-works" className="inline-flex min-h-[52px] items-center gap-3 rounded-xl border border-white/20 px-6 text-sm font-semibold text-white transition-colors hover:bg-white/[.06]">How it works <ArrowRight className="h-4 w-4"/></a>
+              <div className="mt-8 flex flex-col items-stretch gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center">
+                <a href="/research-preview.html" className="inline-flex min-h-[52px] items-center justify-center gap-3 rounded-xl bg-[#ff9b65] px-6 sm:justify-start text-sm font-bold text-[#160f0b] transition-colors hover:bg-[#ffb58c]">Explore the interface <ArrowUpRight className="h-4 w-4"/></a>
+                <a href="#how-it-works" className="inline-flex min-h-[52px] items-center justify-center gap-3 rounded-xl border border-white/20 px-6 sm:justify-start text-sm font-semibold text-white transition-colors hover:bg-white/[.06]">How it works <ArrowRight className="h-4 w-4"/></a>
               </div>
               <p className="mt-6 text-xs leading-relaxed text-white/40">Interface preview only. No live picks, odds, or verified betting edge.</p>
             </div>
