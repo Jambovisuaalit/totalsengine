@@ -81,7 +81,7 @@ class TestForwardPipeline(unittest.TestCase):
 
     def test_tsa_signed_time_requires_unique_valid_timestamp(self):
         payload = json.dumps({"timestamp_response_text":
-            "Status: Granted.\\nTime stamp: Nov  2 17:01:12 2026 GMT\\n"}).encode()
+            "Status: Granted.\nTime stamp: Nov  2 17:01:12 2026 GMT\n"}).encode()
         self.assertEqual(tsa_signed_time(payload),
             datetime(2026, 11, 2, 17, 1, 12, tzinfo=timezone.utc))
         with self.assertRaises(ValueError):
