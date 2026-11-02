@@ -145,6 +145,65 @@ def archive_settlement(repo: str, token: str, run_id: int, directory: Path) -> d
     return create_only(repo, token, archive_path("settlements", run_id), envelope)
 
 
+def import_verified_artifact(repo: str, token: str, run: dict,
+                             zip_raw: bytes, checked_rows: list[dict],
+                             *, now: datetime | None = None) -> dict:
+    """Preserve historic Actions forecasts, explicitly marking late imports.
+
+    Called only AFTER forward_settlement.inspect_artifact checked original hashes
+    and run completion. Never changes original generated_at or pretends that
+    ledger commit occurred at the pregame prediction time.
+    """
+    from io import BytesIO
+    from zipfile import ZipFile
+    run_id = int(run["id"])
+    path = archive_path("forecasts", run_id)
+    rows = [{k: v for k, v in p.items() if not k.startswith("_")}
+            for p in checked_rows]
+    validate_rows(rows)
+    if any(p.get("_github_run_id") != run_id for p in checked_rows):
+        raise ValueError("Cross-run artifact import")
+    with ZipFile(BytesIO(zip_raw)) as z:
+        manifest_raw = z.read("manifest.json")
+        predictions_raw = z.read("predictions.jsonl")
+        manifest = json.loads(manifest_raw)
+    if manifest["predictions_sha256"] != digest(predictions_raw):
+        raise ValueError("Import manifest is corrupt")
+    # The original capture completed before each tipoff (verified earlier).
+    # This new Git commit may be later and is not represented as pregame.
+    existing = None
+    try:
+        _, raw = read_record(repo, token, path)
+        existing = json.loads(raw)
+    except HTTPError as exc:
+        if exc.code != 404:
+            raise
+    if existing is not None:
+        if (existing.get("run_id") != run_id
+                or existing.get("rows") != rows
+                or existing.get("predictions_sha256") != digest(predictions_raw)):
+            raise ValueError("Existing ledger record conflicts with imported artifact")
+        return {"status": "ALREADY_ARCHIVED", "path": path}
+    submitted = (now or datetime.now(UTC)).astimezone(UTC)
+    env = {
+        "schema": 1, "kind": "FORECAST_RUN_RESEARCH_ONLY",
+        "run_id": run_id,
+        "generated_at_host_utc": manifest["generated_at_host_utc"],
+        "ledger_submitted_at_host_utc": submitted.isoformat(),
+        "retrospective_import": True,
+        "origin_run_completed_at_utc": run["updated_at"],
+        "predictions_sha256": digest(predictions_raw),
+        "manifest_sha256": digest(manifest_raw),
+        "source_snapshot_hashes": manifest["source_sha256_by_day"],
+        "rows": rows, "n_forecasts": len(rows),
+        "independently_timestamped": False,
+        "source_availability_verified": False,
+        "publication_allowed": False,
+        "evaluation_eligible": False,
+        "gate_status": "NO_GO"}
+    return create_only(repo, token, path, env)
+
+
 def load_forecasts(repo: str, token: str) -> list[dict]:
     """Read all retained forecast runs; fail closed on tree truncation/conflicts."""
     listing = api(repo, token, "GET", f"/git/trees/{BRANCH}?recursive=1")
