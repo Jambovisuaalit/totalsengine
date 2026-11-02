@@ -72,7 +72,7 @@ export async function generateFixtureReply(command,args,options={}) {
  if (!key) return "NBA fixture source unavailable. No model prediction or betting recommendation.";
  try {
   if (command==="analyze"){
-   if (!/^\\d{1,12}$/.test(args)) return "Usage: /analyze <BALLDONTLIE game ID> (numeric provider ID).";
+   if (!/^\d{1,12}$/.test(args)) return "Usage: /analyze <BALLDONTLIE game ID> (numeric provider ID).";
    const fixture=await fetchNbaFixture(args,key,{fetcher:options.nbaFetcher||fetch,now:options.now});
    return [
     "NBA fixture — authenticated source",
@@ -85,7 +85,7 @@ export async function generateFixtureReply(command,args,options={}) {
     "Model total: BLOCKED (no independently verified pregame record)",
     "Market odds: BLOCKED (no licensed timestamped odds)",
     "NO PLAY / NO CLAIM"
-   ].join("\\n");
+   ].join("\n");
   }
   if(command==="games"){
    if(args) return "Usage: /games (upcoming NBA games, next 48 hours in UTC).";
@@ -105,7 +105,7 @@ export async function generateFixtureReply(command,args,options={}) {
     .filter(f=>f&&Date.parse(f.scheduled_tipoff_utc)>now.getTime()&&Date.parse(f.scheduled_tipoff_utc)<=end.getTime()&&!f.postponed)
     .sort((a,b)=>a.scheduled_tipoff_utc.localeCompare(b.scheduled_tipoff_utc)).slice(0,8);
    if(!fixtures.length)return "No upcoming NBA fixtures confirmed within the next 48 hours by the provider.";
-   return ["Upcoming NBA fixtures (BALLDONTLIE; UTC)",...fixtures.map(f=>f.away.abbreviation+" @ "+f.home.abbreviation+" | "+f.scheduled_tipoff_utc+" | ID "+f.provider_game_id),"","Use /analyze <game ID> for fixture details. Model totals and odds remain BLOCKED."].join("\\n");
+   return ["Upcoming NBA fixtures (BALLDONTLIE; UTC)",...fixtures.map(f=>f.away.abbreviation+" @ "+f.home.abbreviation+" | "+f.scheduled_tipoff_utc+" | ID "+f.provider_game_id),"","Use /analyze <game ID> for fixture details. Model totals and odds remain BLOCKED."].join("\n");
   }
  }catch(e){
   if(e instanceof FixtureError)return e.code==="FIXTURE_NOT_FOUND"?"Game not found in provider data.":"NBA source unavailable ("+e.code+"). No analysis.";
