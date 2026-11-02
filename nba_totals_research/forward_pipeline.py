@@ -107,6 +107,7 @@ def put_object_lock(client, *, bucket: str, key: str, raw: bytes,
     result = client.put_object(
         Bucket=bucket, Key=key, Body=raw,
         ContentType="application/octet-stream",
+        IfNoneMatch="*",
         ChecksumAlgorithm="SHA256",
         ObjectLockMode="COMPLIANCE",
         ObjectLockRetainUntilDate=retain_until,
@@ -179,7 +180,20 @@ def execute_once(*, data_csv: Path, workdir: Path, game_id: str, away: str,
             archived[name] = put_object_lock(
                 s3_client, bucket=s3_bucket, key=f"{prefix}/{name}",
                 raw=data, retain_until=retain_until)
+        # A separately locked completion manifest is written LAST. If any
+        # preceding upload fails there is no completed archive checkpoint.
+        manifest = {"schema_version": 1, "type": "PROSPECTIVE_ARCHIVE_COMPLETION",
+                    "game_id": game_id, "model_version": inferred["model_version"],
+                    "prediction_sha256": _sha(raw), "tsa_signed_at": signed_at.isoformat(),
+                    "artifacts": archived, "external_timestamp_verified": True,
+                    "source_availability_verified": False,
+                    "evaluation_eligible": False, "publication_allowed": False}
+        completion = put_object_lock(
+            s3_client, bucket=s3_bucket, key=f"{prefix}/completion-manifest.json",
+            raw=json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode(),
+            retain_until=retain_until)
         return {"status": "CAPTURED_ARCHIVED_TIMESTAMPED_RESEARCH_ONLY",
+                "completion_manifest": completion,
                 "prediction_sha256": _sha(raw),
                 "predicted_total": inferred["expected_total"],
                 "archive": archived, "tsa_verified": True,
