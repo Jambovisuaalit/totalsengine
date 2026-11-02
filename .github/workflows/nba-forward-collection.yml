@@ -1,0 +1,47 @@
+name: NBA forward paper forecast — research only
+on:
+  schedule:
+    - cron: "15 16 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HALTED: "1"
+      PUBLICATION_ALLOWED: "false"
+      PYTHONPATH: "."
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout research implementation
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: research/nba-v2-external-evidence-integration
+          persist-credentials: false
+      - name: Set Python version
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Verify safety defaults
+        shell: bash
+        run: |
+          test "$HALTED" = "1"
+          test "$PUBLICATION_ALLOWED" = "false"
+      - name: Run read-only daily forward forecast collection
+        shell: bash
+        run: |
+          python -m nba_totals_research.scheduled_paper_collector --output "$RUNNER_TEMP/nba-paper"
+
+      - name: Preserve research source snapshots and forecasts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: nba-paper-${{ github.run_id }}
+          path: ${{ runner.temp }}/nba-paper/
+          retention-days: 30
+          if-no-files-found: error
+      - name: Persist derived forecasts in GitHub research ledger (create-only)
+        shell: bash
+        run: |
+          python -m nba_totals_research.research_ledger forecasts --directory "$RUNNER_TEMP/nba-paper" --run-id "$GITHUB_RUN_ID"

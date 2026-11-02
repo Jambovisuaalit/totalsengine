@@ -1,0 +1,2 @@
+One-time trigger to verify GitHub Actions paper forecast artifact ingestion, result reconciliation and provisional report. No wagering or publishing.
+Retry 2 after GitHub archive signed-URL redirect and auth separation fix.

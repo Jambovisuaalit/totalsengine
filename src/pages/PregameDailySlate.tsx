@@ -12,18 +12,10 @@ import NotFound from "./NotFound";
 const PregameDailySlate = () => {
   const { sport, date } = useParams<{ sport: string; date: string }>();
 
-  // Validate sport
-  if (!sport || !isValidSport(sport)) {
-    return <NotFound />;
-  }
-
-  // Validate date format
   const resolvedDate = date || getTodayDate();
-  if (!isValidDateFormat(resolvedDate)) {
-    return <NotFound />;
-  }
-
-  const { data, isLoading, error } = useDailySlateData(sport as Sport, resolvedDate);
+  const valid = !!sport && isValidSport(sport) && isValidDateFormat(resolvedDate);
+  const { data, isLoading, error } = useDailySlateData(valid ? sport as Sport : "nba" as Sport, resolvedDate);
+  if (!valid) return <NotFound />;
   const sportName = SPORT_DISPLAY_NAMES[sport as Sport];
 
   if (error) {

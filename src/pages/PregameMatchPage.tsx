@@ -18,23 +18,15 @@ const PregameMatchPage = () => {
     date: string;
   }>();
 
-  // Validate required params
-  if (!sport || !isValidSport(sport) || !league || !match) {
-    return <NotFound />;
-  }
-
-  // Validate date format
   const resolvedDate = date || getTodayDate();
-  if (!isValidDateFormat(resolvedDate)) {
-    return <NotFound />;
-  }
-
+  const valid = !!sport && isValidSport(sport) && !!league && !!match && isValidDateFormat(resolvedDate);
   const { data, isLoading, error } = useMatchPageData(
-    sport as Sport,
-    league,
-    match,
+    valid ? sport as Sport : "nba" as Sport,
+    league || "",
+    match || "",
     resolvedDate
   );
+  if (!valid) return <NotFound />;
 
   if (error) {
     console.error("Error loading match page:", error);
