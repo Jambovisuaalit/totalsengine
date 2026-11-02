@@ -81,6 +81,7 @@ class V2VerificationTests(unittest.TestCase):
             "execution": dict(common, acceptance_status="ACCEPTED",
                               book=self.q["book"], provider_quote_id=self.q["provider_quote_id"],
                               accepted_at=T.isoformat(), accepted_stake="25",
+                              bookmaker_limit="30", currency="EUR",
                               accepted_odds=self.q["decimal_odds"],
                               confirmation_id="synthetic-test-acceptance"),
             "model": dict(common, model_version=self.paper.model_version,
@@ -169,7 +170,9 @@ class V2VerificationTests(unittest.TestCase):
 
     def test_no_accepted_price_or_stake_cannot_pass(self):
         for k, value in [("accepted_odds", "1.91"), ("accepted_stake", "0"),
-                         ("acceptance_status", "AVAILABLE"), ("confirmation_id", "")]:
+                         ("acceptance_status", "AVAILABLE"), ("confirmation_id", ""),
+                         ("bookmaker_limit", "10"), ("currency", "USD"),
+                         ("bookmaker_limit", "Infinity")]:
             with self.subTest(key=k):
                 proofs = self.all_proofs()
                 proofs["execution"] = self.sign("execution", dict(self.claims["execution"], **{k:value}))

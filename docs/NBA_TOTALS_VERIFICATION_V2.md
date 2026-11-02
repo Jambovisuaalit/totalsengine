@@ -25,7 +25,8 @@ Six separate required signers:
    commercial betting signals use, redistribution, retention, contract,
    grant validity and independent issuer enrollment.
 4. Bookmaker acceptance verifier must sign **accepted** price, exact
-   bookmaker/quote, accepted stake, acceptance ID and time.
+   bookmaker/quote, accepted stake (EUR), accepted market price, bookmaker-confirmed stake limit,
+   acceptance ID and time.
    This component never places or requests a wager. A price displayed
    on a feed is NOT an accepted bet.
 5. Independent model validator must sign OOS/calibration/no-lookahead

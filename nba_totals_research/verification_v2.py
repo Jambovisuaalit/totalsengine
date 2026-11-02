@@ -57,7 +57,7 @@ def _decimal(raw: object) -> str:
     n = Decimal(raw)
     if not n.is_finite():
         raise ValueError("Finite decimal required")
-    return str(n.normalize())
+    return n
 
 
 @dataclass(frozen=True)
@@ -239,13 +239,17 @@ def assess_bundle(
         amount = _decimal(execution["accepted_stake"])
         min_amount = _decimal(minimum_stake)
         price = _decimal(execution["accepted_odds"])
+        confirmed_limit = _decimal(execution["bookmaker_limit"])
         checks["EXECUTION_VERIFIED"] = (
             execution["acceptance_status"] == "ACCEPTED"
             and execution["book"] == quote["book"]
             and execution["provider_quote_id"] == quote["provider_quote_id"]
             and execution["confirmation_id"] not in ("", None)
             and roots[("execution", envelopes["execution"].key_id)].subject == quote["book"]
-            and amount is not None and float(amount) >= float(min_amount) > 0
+            and execution["currency"] == "EUR"
+            and min_amount > 0
+            and min_amount <= amount <= confirmed_limit
+            and confirmed_limit > 0
             and price == _decimal(quote["decimal_odds"])
             and local <= accept <= now <= tip - T60
             and now - accept <= MAX_EXECUTION_AGE
