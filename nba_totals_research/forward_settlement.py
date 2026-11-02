@@ -19,7 +19,7 @@ from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 from .scheduled_paper_collector import canonical, digest, download_day, extract, iso
-from .research_ledger import load_forecasts
+from .research_ledger import load_forecasts, import_verified_artifact
 
 UTC = timezone.utc
 MAX_ARTIFACT = 12_000_000
@@ -242,7 +242,9 @@ def collect_from_github(repo: str, token: str, *, max_runs: int = MAX_ARCHIVES) 
                 raise ValueError("Artifact workflow-run mismatch")
             run = github_json(f"{base}/actions/runs/{run_id}", token=token)
             zipped = github_archive(artifact["archive_download_url"], token=token)
-            result.extend(inspect_artifact(zipped, run, artifact_name=name))
+            verified = inspect_artifact(zipped, run, artifact_name=name)
+            import_verified_artifact(repo, token, run, zipped, verified)
+            result.extend(verified)
             fetched += 1
             if fetched >= max_runs:
                 return result
