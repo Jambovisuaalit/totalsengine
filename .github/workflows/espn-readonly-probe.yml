@@ -8,6 +8,8 @@ on:
       - nba_totals_research/espn_probe.py
       - nba_totals_research/schedule_observer.py
       - nba_totals_research/external_integration.py
+      - nba_totals_research/rfc3161_timestamp.py
+      - tests_nba_totals/test_rfc3161_timestamp.py
       - .github/workflows/espn-readonly-probe.yml
 permissions:
   contents: read
@@ -24,5 +26,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+      - name: RFC3161 negative-path unit tests (no TSA contacted)
+        run: python3 -m unittest tests_nba_totals.test_rfc3161_timestamp -v
       - name: One read-only external GET (no bookmaker/publisher credentials)
         run: python3 -m nba_totals_research.espn_probe
