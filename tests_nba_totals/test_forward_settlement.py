@@ -11,7 +11,8 @@ from nba_totals_research.forward_settlement import inspect_artifact, score_forec
 
 NOW = datetime(2026, 11, 2, 16, tzinfo=timezone.utc)
 TIP = NOW + timedelta(hours=8)
-RUN = {"id": 77, "status": "completed", "conclusion": "success",\n       "path": ".github/workflows/nba-forward-collection.yml", "head_branch": "main",
+RUN = {"id": 77, "status": "completed", "conclusion": "success",
+       "path": ".github/workflows/nba-forward-collection.yml", "head_branch": "main",
        "created_at": (NOW-timedelta(minutes=2)).isoformat(),
        "updated_at": (NOW+timedelta(minutes=2)).isoformat()}
 
@@ -67,7 +68,12 @@ class TestForwardSettlement(unittest.TestCase):
         with self.assertRaises(ValueError):
             inspect_artifact(zipfiles(fixture()), later, artifact_name="nba-paper-77")
 
-    def test_reject_other_workflow(self):\n        other = dict(RUN, path=".github/workflows/other.yml")\n        with self.assertRaises(ValueError):\n            inspect_artifact(zipfiles(fixture()), other, artifact_name="nba-paper-77")\n\n    def test_reject_cross_run_artifact(self):
+    def test_reject_other_workflow(self):
+        other = dict(RUN, path=".github/workflows/other.yml")
+        with self.assertRaises(ValueError):
+            inspect_artifact(zipfiles(fixture()), other, artifact_name="nba-paper-77")
+
+    def test_reject_cross_run_artifact(self):
         with self.assertRaises(ValueError):
             inspect_artifact(zipfiles(fixture()), RUN, artifact_name="nba-paper-88")
 
