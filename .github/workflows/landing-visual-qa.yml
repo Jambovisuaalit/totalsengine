@@ -1,0 +1,39 @@
+name: Landing visual QA
+on:
+  push:
+    branches: [landing/nba-totals]
+    paths: ['index.html', 'styles.css', 'app.js', 'qa/**', '.github/workflows/landing-visual-qa.yml']
+  pull_request:
+    paths: ['index.html', 'styles.css', 'app.js', 'qa/**', '.github/workflows/landing-visual-qa.yml']
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install QA dependency
+        run: npm --prefix qa install --no-audit --no-fund
+      - name: Install Chromium
+        run: cd qa && npx playwright install --with-deps chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 > /tmp/totals-landing-http.log 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8080/ -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Test layouts and interactions
+        run: npm --prefix qa test
+      - name: Upload screenshots and QA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: landing-visual-qa
+          path: qa/results/
+          retention-days: 14
