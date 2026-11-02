@@ -28,6 +28,38 @@ def record():
 
 
 class TestResearchLedger(unittest.TestCase):
+    def test_backfilled_artifact_records_actual_import_time(self):
+        import io
+        import zipfile
+        from nba_totals_research.research_ledger import import_verified_artifact
+        p = record()
+        buf = io.BytesIO()
+        pred_bytes = canonical(p) + bytes([10])
+        manifest = canonical({
+            "predictions_sha256": digest(pred_bytes),
+            "source_sha256_by_day": {"2026-11-01":"sha"},
+            "generated_at_host_utc": NOW.isoformat(),
+        })
+        with zipfile.ZipFile(buf,"w") as z:
+            z.writestr("manifest.json",manifest)
+            z.writestr("predictions.jsonl",pred_bytes)
+        captured=[]
+        def fake(*args):
+            captured.append(args[-1])
+            return {"status":"CREATED"}
+        run={"id":19,"updated_at":(NOW + timedelta(minutes=2)).isoformat()}
+        checked=[dict(p, _github_run_id=19)]
+        def missing(*args):
+            raise HTTPError("https://api.github.com",404,"missing",{},None)
+        with patch("nba_totals_research.research_ledger.read_record",missing):
+            with patch("nba_totals_research.research_ledger.create_only",fake):
+                import_verified_artifact("org/repo","token",run,buf.getvalue(),checked,
+                                         now=NOW+timedelta(hours=10))
+        self.assertTrue(captured[0]["retrospective_import"])
+        self.assertEqual(captured[0]["generated_at_host_utc"],NOW.isoformat())
+        self.assertEqual(captured[0]["ledger_submitted_at_host_utc"],
+                         (NOW+timedelta(hours=10)).isoformat())
+
     def test_archive_path_rejects_traversal(self):
         self.assertEqual(archive_path("forecasts", 9), "forecasts/9.json")
         for kind, run_id in [("../forecasts", 9), ("forecasts", -1), ("settlements", "1/2")]:
