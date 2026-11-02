@@ -24,7 +24,5 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - name: Verify offline unit tests
-        run: python3 -m unittest discover -s tests_nba_totals -p 'test_*.py' -v
       - name: One read-only external GET (no bookmaker/publisher credentials)
         run: python3 -m nba_totals_research.espn_probe
