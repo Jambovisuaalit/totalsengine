@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.request import Request, urlopen
@@ -28,5 +29,15 @@ with TemporaryDirectory(prefix="tsa-verify-") as directory:
     ca.write_bytes(pinned("https://freetsa.org/files/cacert.pem", CA_SHA256))
     signer.write_bytes(pinned("https://freetsa.org/files/tsa.crt", SIGNER_SHA256))
     result = timestamp_digest(digest, root, tsa_url="https://freetsa.org/tsr", ca_file=ca, signer_file=signer)
+    output = os.environ.get("TSA_AUDIT_OUTPUT")
+    if output:
+        dest = Path(output)
+        dest.mkdir(parents=True, exist_ok=True, mode=0o700)
+        for name in ("request.tsq", "response.tsr", "timestamp-audit.json"):
+            shutil.copyfile(root / name, dest / name)
+            (dest / name).chmod(0o600)
+        for name, source in (("cacert.pem", ca), ("tsa.crt", signer)):
+            shutil.copyfile(source, dest / name)
+            (dest / name).chmod(0o600)
     print(json.dumps({**result, "tsa": "FreeTSA", "ca_sha256": CA_SHA256,
                       "signer_sha256": SIGNER_SHA256}, sort_keys=True))
