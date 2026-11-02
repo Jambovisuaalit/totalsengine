@@ -56,7 +56,7 @@ def github_archive(url: str, *, token: str) -> bytes:
 
 def inspect_artifact(raw_zip: bytes, run: dict, *, artifact_name: str) -> list[dict]:
     """Verify snapshot hashes and per-row digest against archived collection manifest."""
-    if run.get("status") != "completed" or run.get("conclusion") != "success":
+    if (run.get("path") != ".github/workflows/nba-forward-collection.yml"\n            or run.get("head_branch") != "main"):\n        raise ValueError("Artifact is not from the approved main-branch forecast workflow")\n    if run.get("status") != "completed" or run.get("conclusion") != "success":
         raise ValueError("Only successful completed runs qualify")
     created, completed = iso(run["created_at"]), iso(run["updated_at"])
     if completed < created:
