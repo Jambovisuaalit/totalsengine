@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sqlite3
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -41,7 +42,7 @@ class OfflineGate:
             raise ValueError("Private SQLite database path required; symlinks/git forbidden")
         database.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         self.database = database
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
             conn.execute("BEGIN IMMEDIATE")
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS policy_control (
@@ -71,7 +72,7 @@ class OfflineGate:
         return connection
 
     def activate_kill_switch(self) -> None:
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
             conn.execute("BEGIN IMMEDIATE")
             conn.execute("UPDATE policy_control SET halted=1 WHERE singleton=1")
             conn.commit()
@@ -92,18 +93,11 @@ class OfflineGate:
         if not isinstance(request_id, str) or not REQUEST.fullmatch(request_id):
             raise ValueError("Invalid idempotency request ID")
         at = utc(now)
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
             conn.execute("BEGIN IMMEDIATE")
             previous = conn.execute(
                 "SELECT paper_sha256,status,checks_json,missing_json "
                 "FROM dry_run_attempts WHERE request_id=?", (request_id,)).fetchone()
-            if previous is not None:
-                if previous[0] != paper.evidence_sha256:
-                    raise ValueError("Idempotency collision with different assessment")
-                conn.commit()
-                return AtomicDryRunResult(
-                    request_id, previous[1], json.loads(previous[2]),
-                    tuple(json.loads(previous[3])))
             halted = conn.execute(
                 "SELECT halted FROM policy_control WHERE singleton=1").fetchone()
             if halted is None:
@@ -119,6 +113,14 @@ class OfflineGate:
             else:
                 # Even if all synthetic proofs verify: no dispatch is possible.
                 status = "DRY_RUN_ELIGIBLE_NO_PUBLISH"
+            if previous is not None:
+                if previous[0] != paper.evidence_sha256:
+                    raise ValueError("Idempotency collision with different assessment")
+                # Never re-use an older GO-like result after a new kill switch,
+                # revoked key, expired proof, or corrupted local receipt.
+                conn.commit()
+                return AtomicDryRunResult(
+                    request_id, status, decision.checks, decision.missing)
             conn.execute(
                 "INSERT INTO dry_run_attempts "
                 "(request_id,paper_sha256,status,checks_json,missing_json,recorded_at,publisher_calls) "
@@ -131,7 +133,7 @@ class OfflineGate:
                 request_id, status, decision.checks, decision.missing)
 
     def audit(self) -> dict:
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
             conn.execute("BEGIN IMMEDIATE")
             control = conn.execute(
                 "SELECT halted FROM policy_control WHERE singleton=1").fetchone()

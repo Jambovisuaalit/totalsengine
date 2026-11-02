@@ -79,6 +79,17 @@ class AtomicOfflineTests(unittest.TestCase):
         self.gate.activate_kill_switch()
         self.assertTrue(self.gate.audit()["kill_switch_active"])
 
+    def test_retry_rechecks_new_halt_instead_of_replaying_prior_decision(self):
+        with sqlite3.connect(self.database) as conn:
+            conn.execute("UPDATE policy_control SET halted=0 WHERE singleton=1")
+        first = self.run_once()
+        self.assertEqual(first.status, "BLOCKED_MISSING_EVIDENCE")
+        self.gate.activate_kill_switch()
+        repeated = self.run_once()
+        self.assertEqual(repeated.status, "HALTED")
+        self.assertFalse(repeated.publication_allowed)
+        self.assertEqual(self.gate.audit()["dry_run_attempts"], 1)
+
     def test_kill_switch_cannot_be_disabled_through_api(self):
         self.assertFalse(hasattr(self.gate, "disable_kill_switch"))
         self.assertFalse(hasattr(self.gate, "publish"))
