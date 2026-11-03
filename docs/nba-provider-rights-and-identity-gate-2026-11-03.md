@@ -22,8 +22,8 @@ Scope: NBA game totals; prospectively frozen pregame forecasts, authenticated so
 | Gate | Requirement | Current disposition |
 |---|---|---|
 | Provider contractual scope | Confirm exact plan terms, commercial model evaluation/display, caching, retention/WORM and termination rights; third-party rights reviewed | TERMS_PERMISSIVE_BUT_NOT_FULLY_CLEARED |
-| Access | Authenticated provider API request with 200, original response bytes, request URI, captured UTC response time and hash | NOT_RUN |
-| Exact game identity | BDL ID, original ESPN ID, UTC scheduled tipoff, teams and game status; non-ambiguous strict mapping and schedule change history | NOT_VERIFIED |
+| Access | Authenticated provider API HTTP 200, host UTC receipt, original response digest | PASS_FOR_HOST_RETRIEVAL_ONLY (2026-11-03; raw discarded) |
+| Exact game identity | BDL ID, original ESPN ID, UTC scheduled tipoff, teams and game status; reschedule history | SIX_EXACT_STRUCTURAL_MATCHES; independent mapping and schedule history not verified |
 | Independent upstream timing | Signed provider publication/availability timestamps or independently accepted provenance | NOT_VERIFIED |
 | Outcome | Genuine FINAL score including OT, lawful source receipt and independent result-source corroboration | NOT_VERIFIED |
 | Prediction evidence | Pre-tipoff original prediction/model/input hashes, RFC3161 signed reply verification, WORM version and retention/readback | NOT_VERIFIED |
@@ -43,3 +43,26 @@ Scope: NBA game totals; prospectively frozen pregame forecasts, authenticated so
 - New API records collected *after* a game cannot establish historical provider publication time or the original pregame feature availability.
 - No EV, ROI, wagering publication or “verified” MAE from the six manually matched rows until the independent admission gate passes.
 - Keep `evaluation_eligible=false`, `publication_allowed=false`, `gate_status=NO_GO` until all independent evidence exists.
+
+## Live reconciliation addendum — 2026-11-03
+
+After this original decision was authored, an authenticated BALLDONTLIE HTTP 200 response for games on 2026-11-02 was fetched via a tightly branch-limited Vercel Preview Function. All 6 requested games matched exactly on team identities, date and scheduled UTC tipoff. Details, exact IDs and response digest are at `docs/nba-bdl-six-game-authenticated-receipt-2026-11-03.md`. The raw HTTP response was **not** archived. The temporary function was removed before the PR's last recorded passing CI. This is real live API evidence at the time of retrieval; it is not an independent pregame availability or rights certificate.
+
+### Formal gate decisions, distinct from generic provider terms
+
+- **BDL data processing rights (provider permission):** Terms updated 2026-10-20, section 6 expressly permits lawful commercial use, storage, archiving, model training/evaluation/backtesting and resulting applications, including lawful wagering-related products. Confirm any account-specific agreement and intended implementation. Source: https://www.balldontlie.io/terms.html .
+- **Third-party clearance:** NOT VERIFIED. BDL section 11 disclaims clearing third-party rights and section 8 disclaims authenticity and reliability. The provider's broad permission alone does not certify all NBA/ESPN-derived upstream data rights.
+- **Historic ESPN input:** NOT VERIFIED. Retrospective BDL game matches do not authorise the original ESPN history used in the model, nor prove its upstream publication time at prediction cutoff.
+- **Production archival:** NOT VERIFIED. Current Vercel env-name listing shows `BALLDONTLIE_API_KEY`, not AWS/S3 or TSA config; absence in Vercel is not evidence of absence outside Vercel. No live signed timestamp, S3 Object Lock COMPLIANCE version/retention/readback was submitted to independent review.
+- **Independent forward observation:** BLOCKED. Do not set `evaluation_eligible=true` based on API connectivity or simulated/offline tests.
+
+### Acceptance sequence for first future match
+
+1. Record the provider terms version and any account-specific agreement, and obtain a documented third-party rights assessment for actual use/storage including historic training records; keep unapproved raw sources out of locked storage (COMPLIANCE-mode retention cannot be undone).
+2. Independently confirm NBA fixture tipoff and changes in the licensed source; capture exact BDL game ID and a verified provider-to-provider mapping.
+3. Prove TSA root/signer trust, make a real RFC 3161 request, verify signed response and signed `genTime`; a timestamp of a *postgame* digest proves only this later timestamp, not pregame provenance.
+4. Verify S3 bucket Object Lock was enabled on creation, versioning and retention, upload a harmless **synthetic test** object, read back exact bytes and retention with VersionId; no historical ESPN or unapproved third-party content in this test.
+5. Only when rights, input/source provenance and archive infra are approved, run one original future pre-tipoff prediction through `execute_once`. Its current implementation deliberately sets `source_availability_verified=false` and `evaluation_eligible=false`, so independent validation and eligibility promotion are **not implemented merely by a successful run**.
+6. After the real FINAL, independently verify result provenance, model identity, schedule, sign time and WORM evidence before considering `1/1` acceptance.
+
+Current release gate: **NO_GO, verified 0/100**.
