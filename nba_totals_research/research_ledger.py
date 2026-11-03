@@ -111,6 +111,13 @@ def archive_forecast(repo: str, token: str, run_id: int, directory: Path,
     generated = iso(manifest["generated_at_host_utc"])
     if generated > current:
         raise ValueError("Future-dated host timestamp")
+    workflow_sha = os.getenv("GITHUB_SHA")
+    manifest_sha = manifest.get("runner_commit_sha")
+    if manifest_sha is not None:
+        if not isinstance(manifest_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", manifest_sha):
+            raise ValueError("Malformed source commit SHA")
+        if os.getenv("GITHUB_ACTIONS") == "true" and manifest_sha != workflow_sha:
+            raise ValueError("Collection checkout and archive SHA mismatch")
     for record in rows:
         if iso(record["generated_at_host_utc"]) != generated:
             raise ValueError("Forecast/manifest timestamp mismatch")
@@ -123,6 +130,7 @@ def archive_forecast(repo: str, token: str, run_id: int, directory: Path,
         "ledger_submitted_at_host_utc": current.isoformat(),
         "predictions_sha256": digest(prediction_raw),
         "manifest_sha256": digest(manifest_raw),
+        "runner_commit_sha": manifest_sha,
         "source_snapshot_hashes": manifest["source_sha256_by_day"],
         "rows": rows, "n_forecasts": len(rows),
         "independently_timestamped": False,
@@ -167,6 +175,12 @@ def import_verified_artifact(repo: str, token: str, run: dict,
         manifest_raw = z.read("manifest.json")
         predictions_raw = z.read("predictions.jsonl")
         manifest = json.loads(manifest_raw)
+    manifest_sha = manifest.get("runner_commit_sha")
+    if manifest_sha is not None:
+        if (not isinstance(manifest_sha, str)
+                or not re.fullmatch(r"[0-9a-f]{40}", manifest_sha)
+                or manifest_sha != run.get("head_sha")):
+            raise ValueError("Imported forecast commit SHA differs from origin run")
     if manifest["predictions_sha256"] != digest(predictions_raw):
         raise ValueError("Import manifest is corrupt")
     # The original capture completed before each tipoff (verified earlier).
@@ -194,6 +208,7 @@ def import_verified_artifact(repo: str, token: str, run: dict,
         "origin_run_completed_at_utc": run["updated_at"],
         "predictions_sha256": digest(predictions_raw),
         "manifest_sha256": digest(manifest_raw),
+        "runner_commit_sha": manifest_sha,
         "source_snapshot_hashes": manifest["source_sha256_by_day"],
         "rows": rows, "n_forecasts": len(rows),
         "independently_timestamped": False,
@@ -228,6 +243,7 @@ def load_forecasts(repo: str, token: str) -> list[dict]:
             p = dict(row)
             p["_github_run_id"] = run_id
             p["_ledger_origin"] = True
+            p["_runner_commit_sha"] = body.get("runner_commit_sha")
             result.append(p)
     return result
 

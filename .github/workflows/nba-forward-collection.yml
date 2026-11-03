@@ -37,6 +37,13 @@ jobs:
         shell: bash
         run: |
           python -m nba_totals_research.scheduled_paper_collector --output "$RUNNER_TEMP/nba-paper"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          manifest = json.loads((Path(os.environ["RUNNER_TEMP"]) / "nba-paper" / "manifest.json").read_text())
+          if not os.environ.get("GITHUB_SHA") or manifest.get("runner_commit_sha") != os.environ["GITHUB_SHA"]:
+              raise SystemExit("Research manifest source commit does not match triggering SHA")
+          PY
 
       - name: Preserve research source snapshots and forecasts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

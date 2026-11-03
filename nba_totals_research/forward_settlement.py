@@ -199,6 +199,7 @@ def score_forecasts(predictions: list[dict], final_games: list[dict], *, at: dat
             "absolute_error": abs(error),
             "record_sha256": p["record_sha256"],
             "github_run_id": p["_github_run_id"],
+            "runner_commit_sha": p.get("_runner_commit_sha"),
         })
     # A mismatched result is an audit blocker, never a scored row.
     errors = [r["error"] for r in scored]
@@ -262,6 +263,9 @@ def collect_long_term_forecasts(repo: str, token: str) -> list[dict]:
             runs[run_id] = github_json(
                 f"https://api.github.com/repos/{repo}/actions/runs/{run_id}", token=token)
         run = runs[run_id]
+        recorded_sha = p.get("_runner_commit_sha")
+        if recorded_sha is not None and recorded_sha != run.get("head_sha"):
+            raise ValueError("Archived research code SHA disagrees with origin workflow")
         if (run.get("conclusion") != "success" or run.get("status") != "completed"
                 or run.get("head_branch") != "main"
                 or run.get("path") != ".github/workflows/nba-forward-collection.yml"):
