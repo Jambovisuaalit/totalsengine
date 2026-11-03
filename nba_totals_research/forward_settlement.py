@@ -118,13 +118,20 @@ def inspect_artifact(raw_zip: bytes, run: dict, *, artifact_name: str) -> list[d
         if (len(manifest["source_sha256_by_day"]) != manifest["n_source_days"]
                 or manifest["n_source_days"] > 40):
             raise ValueError("Invalid source snapshot manifest")
+        # Historical archives may contain raw source snapshots; verify their
+        # hashes if present. New archives intentionally retain only digests
+        # pending provider retention approval.
+        snapshot_names = {f"source_snapshots/{day}.json"
+                          for day in manifest["source_sha256_by_day"]}
+        present = set(files) - {"manifest.json", "predictions.jsonl"}
+        if present and present != snapshot_names:
+            raise ValueError("Incomplete or unexpected archived source snapshots")
         for day, sha in manifest["source_sha256_by_day"].items():
-            if digest(files[f"source_snapshots/{day}.json"]) != sha:
+            if not isinstance(sha, str) or not re.fullmatch(r"[0-9a-f]{64}", sha):
+                raise ValueError("Invalid source snapshot digest")
+            name = f"source_snapshots/{day}.json"
+            if name in files and digest(files[name]) != sha:
                 raise ValueError("Source snapshot SHA mismatch")
-        if set(files) != ({"manifest.json", "predictions.jsonl"} |
-                         {f"source_snapshots/{day}.json"
-                          for day in manifest["source_sha256_by_day"]}):
-            raise ValueError("Manifest does not enumerate all archive files")
         generated = iso(manifest["generated_at_host_utc"])
         # GitHub run was created first and finished before the forecasted game.
         if not created - timedelta(minutes=1) <= generated <= completed + timedelta(minutes=1):
@@ -304,10 +311,7 @@ def run_report(repo: str, token: str, output: Path, *, at: datetime | None = Non
     with (output / "scored_rows.jsonl").open("wb") as f:
         for row in report["scored_rows"]:
             f.write(canonical(row) + b"\n")
-    source_dir = output / "result_sources"
-    source_dir.mkdir(exist_ok=True)
-    for day, raw in source_raw.items():
-        (source_dir / f"{day}.json").write_bytes(raw)
+    # No persistent raw ESPN result responses without verified retention rights.
     return report
 
 
