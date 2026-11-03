@@ -18,8 +18,12 @@ jobs:
       - name: Checkout research implementation
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: research/nba-v2-external-evidence-integration
           persist-credentials: false
+      - name: Verify source commit is the triggering main revision
+        shell: bash
+        run: |
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Set Python version
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
