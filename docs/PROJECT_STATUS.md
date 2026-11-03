@@ -16,7 +16,10 @@ Doctore pages and integrations remain in source, unmounted, for a separate
 migration. No subscription, legacy dashboard, paid checkout or market feed is
 exposed by this router. Static `/research-preview.html` is an illustrative archive.
 Client-rendered canonical URLs use the current origin and route; the actual
-production domain and deployed pages still require preview/production smoke.
+deployed pages still require preview/production smoke. Vercel project-domain
+metadata verified totalsengine.vercel.app as this project's production alias
+on 2026-11-03; robots/sitemap use that origin and list only the four public routes.
+The illustrative archive is noindex.
 
 ## Three distinct research tracks
 
