@@ -58,3 +58,16 @@ The failed TSA workflow run 41591119203 was a `push` event on a `workflow_dispat
 - BALLDONTLIE published ToS page currently says **Last Updated: August 4, 2026**, not October 20. §6 permits broad lawful commercial use, **but prohibits competing services and unmodified original-data resale**; §11 does not clear third-party rights. The BDL terms cannot validate legacy ESPN source rights. Account-specific terms and third-party clearance remain pending.
 - **WORM_S3_TEST_NOT_RUN**: no authenticated AWS Object Lock bucket, retention, VersionId and readback evidence was verified in this execution. No COMPLIANCE-mode uploads should be attempted until test-bucket ownership, retention and cost are confirmed.
 - **NBA_FORWARD_0/100**, `evaluation_eligible=false`, `publication_allowed=false`, `NO_GO`. PR #26 remains draft; no production rollout.
+
+
+## Prospective real game pre-tipoff TSA checkpoint — 2026-11-03 (supersedes older 'none' wording for timestamp only)
+
+- **14 genuine ESPN-based pregame research forecasts** were computed using 38 days of in-memory scoreboards (189 game rows). Original JSONL, source-hash manifest, and genuine RFC3161 signed receipt are preserved in `docs/evidence/nba-forward-original-2026-11-03/` on draft PR #26.
+- Forecast calculation time `2026-11-03T09:39:08.601802Z`; original JSONL SHA-256 `fca6fc731ca185ffd62c01fa90c7205be8a7a1d3b1bcafc7ffd53952f1745ccf`; signed FreeTSA time `2026-11-03T09:39:15Z`, prior to all 14 claimed tipoffs (earliest `2026-11-05T00:00Z`). Separate readback + OpenSSL signature verification after GitHub commit returned **PASS**.
+- This establishes a **real externally timestamped forecast-batch digest**, not WORM and not authenticated historical source-availability rights. Legacy statements saying no real externally timestamped pregame batch existed are stale; all claims of independent evaluation eligibility remain **NO_GO, 0/100**.
+- The input was **ESPN**, not BALLDONTLIE. ESPN usage/license, historical feature upstream publication timing, independent game-ID mapping, immutable storage and subsequent independently sourced FINAL remain unapproved. Preliminary future MAE/RMSE is not yet available.
+- An attempted BALLDONTLIE Preview deployment failed with Vercel API 402 `api-deployments-free-per-day`; its temporary branch-only probe route was removed. No paid Vercel or AWS account was created.
+- Latest live BALLDONTLIE Terms page states `Last Updated: October 20, 2026`; narrow restriction on substitute sports-data APIs, not generally competing analytics. Prior August-4 / blanket-competition notes in this file are superseded. Third-party source rights still require assessment.
+- Full record: `docs/nba-first-real-pregame-rfc3161-checkpoint-2026-11-03.md`.
+
+**Safety remains:** `evaluation_eligible=false`, `publication_allowed=false`, `NO_GO`; PR remains draft until explicitly approved.
