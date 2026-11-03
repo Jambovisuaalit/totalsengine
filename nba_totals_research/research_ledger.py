@@ -175,6 +175,12 @@ def import_verified_artifact(repo: str, token: str, run: dict,
         manifest_raw = z.read("manifest.json")
         predictions_raw = z.read("predictions.jsonl")
         manifest = json.loads(manifest_raw)
+    manifest_sha = manifest.get("runner_commit_sha")
+    if manifest_sha is not None:
+        if (not isinstance(manifest_sha, str)
+                or not re.fullmatch(r"[0-9a-f]{40}", manifest_sha)
+                or manifest_sha != run.get("head_sha")):
+            raise ValueError("Imported forecast commit SHA differs from origin run")
     if manifest["predictions_sha256"] != digest(predictions_raw):
         raise ValueError("Import manifest is corrupt")
     # The original capture completed before each tipoff (verified earlier).
