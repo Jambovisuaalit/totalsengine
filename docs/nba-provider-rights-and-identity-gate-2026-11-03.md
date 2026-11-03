@@ -74,3 +74,10 @@ FreeTSA was exercised from a Vercel Sandbox using a **synthetic-only** SHA-256 i
 FreeTSA publicly permits commercial use with a one-request-per-second/IP limit but provides no SLA (https://www.freetsa.org/freetsa.html). It is not presumed to be an eIDAS-qualified provider. Production security and legal use still require separate acceptance.
 
 **Important:** rights for the existing ESPN-dependent 2026-11-02 forecasts remain unresolved; the independent forward cohort remains 0/100.
+
+
+## Live ToS recheck 2026-11-03 — correction of prior conflicting addendum
+
+The live https://www.balldontlie.io/terms.html currently states **Last Updated: October 20, 2026**. Section 6 expressly allows lawful competing analytics products including statistical projections and commercial model evaluation. The prohibited competitor category is **a substitute sports-data API or equivalent feed** supplied to third parties, not independent analytics products in general. Previously written remarks that the terms were dated August 4, 2026 and broadly prohibited all competing products are superseded by this correction. The section 11 third-party rights disclaimer remains, as do sections 8-9 data freshness/provenance disclaimers. Preserve exact URL and retrieval date, and recheck plan-specific terms before commercial release.
+
+**Operational decision:** Research-only BDL-derived prospective observations may be generated with protected account API credentials, preserving derived metrics and raw-response digests rather than raw upstream bytes; no blanket rights clearance or eligibility upgrade for original ESPN-derived historic inputs. Source availability, independent WORM, authorized third-party IP and settlement remain separate **NO_GO** gates.
