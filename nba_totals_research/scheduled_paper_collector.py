@@ -185,6 +185,7 @@ def run(output_dir: Path, *, now: datetime | None = None,
     (output_dir / "predictions.jsonl").write_bytes(lines)
     report = {
         "generated_at_host_utc": now.isoformat(), "n_source_days": len(raw),
+        "runner_commit_sha": os.environ.get("GITHUB_SHA") or None,
         "n_games": len(games), "n_forecasts": len(predictions),
         "predictions_sha256": digest(lines), "source_sha256_by_day": snapshots,
         "timestamp_trust": "GITHUB_ACTIONS_HOST_CLOCK_UNATTESTED",
