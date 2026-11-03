@@ -37,6 +37,8 @@ def infer_rolling_team_total(csv_path: Path, *, away: str, home: str,
     """
     if away == home or not away or not home or not 2 <= n_games <= 30:
         raise ValueError("Invalid matchup or history window")
+    if cutoff.tzinfo is None or cutoff.utcoffset() is None:
+        raise ValueError("Timezone-aware feature cutoff required")
     cutoff = cutoff.astimezone(timezone.utc)
     raw = csv_path.read_bytes()
     from io import StringIO
