@@ -4,9 +4,9 @@ Scope: NBA game totals; prospectively frozen pregame forecasts, authenticated so
 
 ## Decision
 
-**Preferred low-cost integration candidate: BALLDONTLIE NBA Games API.** Its Terms of Service updated 2026-10-20 explicitly permit lawful personal and commercial uses, including paid apps, copying, caching, storage, archiving, models, redistribution and derivative works, without a fixed data-retention deadline (section 6). However section 11 disclaims clearance of third-party rights, and sections 8-9 explicitly do not warrant source provenance, accuracy, or timeliness. Section 2 says not to use BDL as the sole source for wager grading/settlement without independent verification. These are not equivalent to an independently verified official feed.
+**Preferred low-cost integration candidate: BALLDONTLIE NBA Games API.** Its publicly visible Terms of Service dated 2026-08-04 (§6) grant broad rights for lawful commercial data use, copying, caching, storage, archiving, model development and derived products, but §6 ALSO prohibits using the Data to create/operate services competing with BALLDONTLIE and resale in original unmodified form. The introductory permission summary differs on competing products, so the operative §6 prohibition should control until clarified in writing. However section 11 disclaims clearance of third-party rights, and sections 8-9 explicitly do not warrant source provenance, accuracy, or timeliness. Section 2 says not to use BDL as the sole source for wager grading/settlement without independent verification. These are not equivalent to an independently verified official feed.
 
-- Terms: https://www.balldontlie.io/terms.html (last updated 2026-10-20; review exact snapshot and account-specific agreement before production)
+- Terms: https://www.balldontlie.io/terms.html (last updated 2026-08-04; review exact snapshot and account-specific agreement before production)
 - NBA API: https://docs.balldontlie.io/ ; `GET /v1/games` and `GET /v1/games/{id}` return BDL game ID, status, date/datetime, home/away team identities, scores, overtime information.
 - Pricing observed 2026-11-03: Free $0 / 5 req per min; All-Star $9.99 per month / 60 req per min; GOAT $39.99 per month / 600 req per min. Games endpoint included in Free. https://nba.balldontlie.io/
 - Access requires a user's provider API key; **no authenticated live NBA fetch was performed** in this decision document.
@@ -50,7 +50,7 @@ After this original decision was authored, an authenticated BALLDONTLIE HTTP 200
 
 ### Formal gate decisions, distinct from generic provider terms
 
-- **BDL data processing rights (provider permission):** Terms updated 2026-10-20, section 6 expressly permits lawful commercial use, storage, archiving, model training/evaluation/backtesting and resulting applications, including lawful wagering-related products. Confirm any account-specific agreement and intended implementation. Source: https://www.balldontlie.io/terms.html .
+- **BDL data processing rights (provider permission):** Terms updated 2026-08-04, section 6 expressly permits lawful commercial use, storage, archiving, model training/evaluation/backtesting and resulting applications, including lawful wagering-related products. Confirm any account-specific agreement and intended implementation. Source: https://www.balldontlie.io/terms.html .
 - **Third-party clearance:** NOT VERIFIED. BDL section 11 disclaims clearing third-party rights and section 8 disclaims authenticity and reliability. The provider's broad permission alone does not certify all NBA/ESPN-derived upstream data rights.
 - **Historic ESPN input:** NOT VERIFIED. Retrospective BDL game matches do not authorise the original ESPN history used in the model, nor prove its upstream publication time at prediction cutoff.
 - **Production archival:** NOT VERIFIED. Current Vercel env-name listing shows `BALLDONTLIE_API_KEY`, not AWS/S3 or TSA config; absence in Vercel is not evidence of absence outside Vercel. No live signed timestamp, S3 Object Lock COMPLIANCE version/retention/readback was submitted to independent review.
@@ -66,3 +66,11 @@ After this original decision was authored, an authenticated BALLDONTLIE HTTP 200
 6. After the real FINAL, independently verify result provenance, model identity, schedule, sign time and WORM evidence before considering `1/1` acceptance.
 
 Current release gate: **NO_GO, verified 0/100**.
+
+## Tested external RFC 3161 infrastructure — 2026-11-03
+
+FreeTSA was exercised from a Vercel Sandbox using a **synthetic-only** SHA-256 input. The pinned certificates matched their expected SHA-256 hashes, external response signature and chain verification passed, and the signed `genTime` was `2026-11-03T09:06:25Z`. Exact request bytes, full TSR and timestamp audit are archived as base64 chunks at `docs/evidence/rfc3161-synthetic-verification-2026-11-03.json`. SHA-256 of TSR is `03082ca35ba949ef4b37405b1155762ce2b316391f233b64e0dd04f5cadf8f7d`. This is a **PASS for synthetic TSA test only**, NOT an NBA prediction timestamp, WORM archive, qualified EU eIDAS timestamp, approved production SLA, or source-rights certificate.
+
+FreeTSA publicly permits commercial use with a one-request-per-second/IP limit but provides no SLA (https://www.freetsa.org/freetsa.html). It is not presumed to be an eIDAS-qualified provider. Production security and legal use still require separate acceptance.
+
+**Important:** rights for the existing ESPN-dependent 2026-11-02 forecasts remain unresolved; the independent forward cohort remains 0/100.
