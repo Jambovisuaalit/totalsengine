@@ -57,6 +57,13 @@ class TestForwardSettlement(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertFalse(rows[0]["evaluation_eligible"])
 
+    def test_accept_digest_only_archive_as_provisional(self):
+        files = fixture()
+        files.pop("source_snapshots/2026-11-02.json")
+        rows = inspect_artifact(zipfiles(files), RUN, artifact_name="nba-paper-77")
+        self.assertEqual(len(rows), 1)
+        self.assertFalse(rows[0]["evaluation_eligible"])
+
     def test_reject_tampered_prediction_bytes(self):
         files = fixture()
         files["predictions.jsonl"] = files["predictions.jsonl"].replace(b"225.5", b"226.5")
