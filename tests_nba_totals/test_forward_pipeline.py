@@ -56,6 +56,12 @@ class TestForwardPipeline(unittest.TestCase):
             self.csv, away="aaa", home="bbb", cutoff=NOW, n_games=2)
         self.assertNotEqual(result["expected_total"], "380.0000")
 
+    def test_naive_feature_cutoff_fails_closed(self):
+        with self.assertRaisesRegex(ValueError, "Timezone-aware feature cutoff"):
+            infer_rolling_team_total(
+                self.csv, away="aaa", home="bbb",
+                cutoff=datetime(2026, 11, 2, 16), n_games=2)
+
     def test_insufficient_history_fails(self):
         with self.assertRaises(ValueError):
             infer_rolling_team_total(self.csv, away="aaa", home="bbb",
