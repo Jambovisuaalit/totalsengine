@@ -36,7 +36,7 @@ def source_receipt(source, raw, retrieved_at, expected_sha, endpoint, http_statu
     except (ValueError, UnicodeError) as exc:
         raise EvidenceError("Invalid source JSON") from exc
     key = "events" if source == "ESPN" else "data"
-    if not isinstance(body, dict) or not isinstance(body.get(key), list):
+    if not isinstance(body, dict) or not isinstance(body.get(key), (list if source == "ESPN" else (list, dict))):
         raise EvidenceError("Unexpected source schema")
     return {"source":source,"source_sha256":expected_sha,
             "retrieved_at_host_utc":_utc(retrieved_at).isoformat(),
