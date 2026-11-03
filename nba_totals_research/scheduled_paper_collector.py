@@ -174,13 +174,9 @@ def run(output_dir: Path, *, now: datetime | None = None,
     raw = {d.isoformat(): fetch(d) for d in days}
     games = extract(raw)
     predictions = forecast(games, at=now)
-    # Archive every raw source used in the run, never fabricate a missing day.
-    raw_dir = output_dir / "source_snapshots"
-    raw_dir.mkdir(exist_ok=True)
-    snapshots = {}
-    for day, payload in raw.items():
-        (raw_dir / f"{day}.json").write_bytes(payload)
-        snapshots[day] = digest(payload)
+    # Raw third-party responses remain process-local pending source rights review.
+    # Persist ONLY hashes, not provider payloads, in Actions/ledger artefacts.
+    snapshots = {day: digest(payload) for day, payload in raw.items()}
     lines = b"".join(canonical(p) + bytes([10]) for p in predictions)
     (output_dir / "predictions.jsonl").write_bytes(lines)
     report = {
