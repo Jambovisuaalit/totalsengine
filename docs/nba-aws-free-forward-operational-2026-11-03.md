@@ -24,3 +24,18 @@
 - GitHub is **not** an immutable WORM archive, independent TSA or guarantee of pre-tipoff public availability; commits and admin permissions are mutable.
 - ESPN right to access an endpoint does not itself confer redistribution/commercial rights. Do not publish raw data or claim licensed data.
 - A paper forecast is an actual generated output, not a betting recommendation. No accuracy, ROI, or probabilistic edge claims should be published until the relevant evidence gates have passed.
+
+
+## Research-only FreeTSA capture added on PR #26 (2026-11-03)
+
+**Revised AWS-free proof transport:** Existing NBA forward collector still uses ESPN-derived research observations with **unresolved commercial/source and temporal availability rights**. Do not attribute licensing, WORM immutability, source-availability verification, official settlement, ROI or publication to this workflow.
+
+1. After the collector has produced `predictions.jsonl` and `manifest.json`, `nba_totals_research.research_tsa_bundle` checks original record hashes, forecast timing, exact SHA-256 of the **unaltered JSONL bytes** and row count before invoking any TSA.
+2. On **nonempty** prospective forecast cohorts it fetches the pinned FreeTSA CA and signer certificates, submits the exact JSONL digest to `https://freetsa.org/tsr`, executes `openssl ts -verify`, and demands signed `genTime` at or after this capture's host time but before the earliest scheduled tipoff. Any missing/late/invalid token fails the workflow without ledger persistence. Zero forecasts cause zero timestamp requests.
+3. The receipt binds exact request.tsq and response.tsr bytes (base64), their hashes, signed time, certificate pins and original JSONL digest, stored beside the derived forecast. It never archives ESPN raw source responses.
+4. `research_ledger.archive_forecast` requires this receipt before recording any **new** nonempty forecast run on the **create-only research-ledger** branch. It stores `original_predictions_jsonl_base64` and `rfc3161_receipt` with the original rows. Past records and imported backfills remain unverified legacy observations rather than being retroactively stamped.
+5. `nba_totals_research.research_tsa_verify` can independently download the ledger envelope and re-run OpenSSL against the pinned trust chain. The collector and archive always retain `evaluation_eligible=false`, `publication_allowed=false` and `NO_GO`; signed timestamp is a **partial research provenance attribute**, not blanket independent evaluation eligibility.
+
+**Non-goals and warnings:** GitHub files, refs and Actions artifacts are changeable/deletable by sufficiently privileged parties; create-only REST writes are policy-level controls **not WORM**. FreeTSA timestamps establish that specified forecast bytes existed by the TSA's time, not that the preceding ESPN historical-source bytes were lawful, published before the cutoff, unmodified or independently validated. Signed proof bytes are stored in the public research-ledger and contain only derived forecasting data, no provider raw data or API secrets. The authorized-data-rights review and source scheduling remain separate blockers.
+
+**Execution status:** Changes are confined to draft PR #26; not on the live `main` collector unless separately merged following CI, source handling and release review. Historical verified cohort remains **0/100**.
