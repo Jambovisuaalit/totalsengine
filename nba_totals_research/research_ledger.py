@@ -113,12 +113,11 @@ def archive_forecast(repo: str, token: str, run_id: int, directory: Path,
         raise ValueError("Future-dated host timestamp")
     workflow_sha = os.getenv("GITHUB_SHA")
     manifest_sha = manifest.get("runner_commit_sha")
-    if os.getenv("GITHUB_ACTIONS") == "true":
-        if (not workflow_sha or not re.fullmatch(r"[0-9a-f]{40}", workflow_sha)
-                or manifest_sha != workflow_sha):
+    if manifest_sha is not None:
+        if not isinstance(manifest_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", manifest_sha):
+            raise ValueError("Malformed source commit SHA")
+        if os.getenv("GITHUB_ACTIONS") == "true" and manifest_sha != workflow_sha:
             raise ValueError("Collection checkout and archive SHA mismatch")
-    elif manifest_sha is not None and not re.fullmatch(r"[0-9a-f]{40}", manifest_sha):
-        raise ValueError("Malformed source commit SHA")
     for record in rows:
         if iso(record["generated_at_host_utc"]) != generated:
             raise ValueError("Forecast/manifest timestamp mismatch")
