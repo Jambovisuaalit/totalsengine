@@ -15,7 +15,7 @@
 
 1. Retain this document as the canonical CURRENT state and refer to historic audits as legacy.
 2. Map each review finding to a source file, reproducer, severity, patch, regression test, CI run, and final SHA before closing it.
-3. **Rights-retention contradiction (P0):** `docs/espn-source-rights-review.md` allows no raw ESPN retention past the isolated process; the scheduled collector writes `source_snapshots/*.json`, and `.github/workflows/nba-forward-collection.yml` uploads them for 30 days. This is a *documented contradiction*, not approved rights. Freeze raw-data archival until explicit counsel/provider clearance. A successful GitHub job does not constitute permission.
+3. **Rights-retention contradiction (P0):** `docs/espn-source-rights-review.md` allows no raw ESPN retention past the isolated process; the scheduled collector writes `source_snapshots/*.json`, and `.github/workflows/nba-forward-collection.yml` uploads them for 30 days. This is a *documented contradiction*, not approved rights. New branch patch removes writing raw ESPN source snapshots into future Actions outputs and settlement outputs; historical Actions archives remain a separate retention-review item. Freeze raw-data archival until explicit counsel/provider clearance. A successful GitHub job does not constitute permission.
 4. Maintain `HALTED=1` and `PUBLICATION_ALLOWED=false`. Do not rename the retrospective or provisional paper-study outputs as verified forecasts.
 5. Keep model performance, source licensing, market odds, website deployment, and Telegram delivery as separate acceptance gates.
 
@@ -45,3 +45,7 @@
 ## References
 
 `README.md`; `docs/nba-three-evidence-gates-2026-11-03.md`; `docs/nba-source-provenance-checkpoint-2026-11-03.md`; `docs/nba-aws-free-forward-operational-2026-11-03.md`; `docs/espn-source-rights-review.md`; `docs/nba-forward-paper-test-protocol.md`; `nba_totals_research/forward_pipeline.py`.
+
+## Verification update (PR #26)
+
+The failed TSA workflow run 41591119203 was a `push` event on a `workflow_dispatch`-only workflow and contained **zero jobs**; it did not exercise an external RFC3161 TSA, so the failure should not be called a failed TSA cryptographic verification. The branch moves the `runner.temp` reference from job-level to step-level environment, pending workflow registration validation and a deliberately dispatched, authorised test. Source retention patch prevents new collector/settlement output directories from containing raw ESPN snapshots. Until CI and real external receipts are confirmed, the verified count remains 0/100.
