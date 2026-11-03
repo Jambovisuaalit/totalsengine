@@ -49,3 +49,12 @@
 ## Verification update (PR #26)
 
 The failed TSA workflow run 41591119203 was a `push` event on a `workflow_dispatch`-only workflow and contained **zero jobs**; it did not exercise an external RFC3161 TSA, so the failure should not be called a failed TSA cryptographic verification. The branch moves the `runner.temp` reference from job-level to step-level environment, pending workflow registration validation and a deliberately dispatched, authorised test. Source retention patch prevents new collector/settlement output directories from containing raw ESPN snapshots. Until CI and real external receipts are confirmed, the verified count remains 0/100.
+
+
+## November 3, 2026: external synthetic TSA and rights checkpoint
+
+- A **real FreeTSA RFC 3161 request** was executed from an isolated Vercel Sandbox against a **synthetic** SHA-256 test input; the pinned CA and signer certificate checks passed. The remote timestamp token's signed time was `2026-11-03T09:06:25Z`, SHA-256 `03082ca35ba949ef4b37405b1155762ce2b316391f233b64e0dd04f5cadf8f7d`, 4643 bytes; OpenSSL signature, chain and message imprint verified. Full synthetic request/response bytes and audit are recorded in `docs/evidence/rfc3161-synthetic-verification-2026-11-03.json` for independent re-verification.
+- This is **TSA_INFRA_SYNTHETIC_PASS** only. It is **NOT** a true pregame NBA forecast, not a qualified EU trusted timestamp assertion, not signed data-source availability, and not WORM storage.
+- BALLDONTLIE published ToS page currently says **Last Updated: August 4, 2026**, not October 20. §6 permits broad lawful commercial use, **but prohibits competing services and unmodified original-data resale**; §11 does not clear third-party rights. The BDL terms cannot validate legacy ESPN source rights. Account-specific terms and third-party clearance remain pending.
+- **WORM_S3_TEST_NOT_RUN**: no authenticated AWS Object Lock bucket, retention, VersionId and readback evidence was verified in this execution. No COMPLIANCE-mode uploads should be attempted until test-bucket ownership, retention and cost are confirmed.
+- **NBA_FORWARD_0/100**, `evaluation_eligible=false`, `publication_allowed=false`, `NO_GO`. PR #26 remains draft; no production rollout.
