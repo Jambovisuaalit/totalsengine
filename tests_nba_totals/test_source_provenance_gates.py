@@ -12,9 +12,9 @@ def source(name):
     host = "https://site.api.espn.com/scoreboard" if name == "ESPN" else "https://api.balldontlie.io/v1/games"
     return source_receipt(name,raw,EARLY,_sha(raw),host)
 
-def matches(away="GSW",tip=TIP,duplicate=False):
+def matches(away="GSW",home="NYK",tip=TIP,duplicate=False):
     e={"source_game_id":"421","away":"gs","home":"ny","scheduled_tipoff":TIP}
-    b={"provider_game_id":"89","away":{"abbreviation":away},"home":{"abbreviation":"NYK"},
+    b={"provider_game_id":"89","away":{"abbreviation":away},"home":{"abbreviation":home},
        "scheduled_tipoff_utc":tip}
     return reconcile_game_ids([e,e] if duplicate else [e],[b],source("ESPN"),
                               source("BALLDONTLIE"),{"gs":"GSW","ny":"NYK"})
@@ -44,7 +44,7 @@ class TestSourceProvenance(unittest.TestCase):
         self.assertEqual(outcome["matches"][0]["balldontlie_game_id"],"89")
         self.assertFalse(outcome["matches"][0]["evaluation_eligible"])
     def test_wrong_home_away_is_unmatched(self):
-        self.assertEqual(matches(away="NYK")["unmatched_espn_ids"],["421"])
+        self.assertEqual(matches(away="NYK",home="GSW")["unmatched_espn_ids"],["421"])
     def test_changed_tipoff_is_unmatched(self):
         self.assertEqual(matches(tip="2026-11-05T01:01:00Z")["unmatched_espn_ids"],["421"])
     def test_duplicate_provider_identity_fails(self):
