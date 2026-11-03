@@ -295,6 +295,8 @@ def run_report(repo: str, token: str, output: Path, *, at: datetime | None = Non
         source_raw = {d.isoformat(): fetch(d) for d in dates}
         finals = extract(source_raw)
     report = score_forecasts(forecasts, finals, at=at)
+    from .cohort_progress import cohort_progress
+    report["paper_100_cohort"] = cohort_progress(report)
     report["generated_at_utc"] = at.isoformat()
     report["source_snapshot_sha256"] = {day: digest(raw) for day,raw in source_raw.items()}
     output.mkdir(parents=True, exist_ok=True)
