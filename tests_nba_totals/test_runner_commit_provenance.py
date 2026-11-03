@@ -65,12 +65,13 @@ class TestCodeCommitProvenance(unittest.TestCase):
             def fake(*args):
                 observed.append(args[-1])
                 return {"status":"CREATED"}
+            # A nonempty run lacking an authenticated pregame TSA receipt must
+            # fail closed, despite a matching originating Actions commit SHA.
             with patch.dict("os.environ", {"GITHUB_ACTIONS":"true","GITHUB_SHA":SHA}):
                 with patch("nba_totals_research.research_ledger.create_only",fake):
-                    archive_forecast("org/repo","token",7,p,now=NOW+timedelta(minutes=2))
-            self.assertEqual(observed[0]["runner_commit_sha"],SHA)
-            self.assertFalse(observed[0]["publication_allowed"])
-            self.assertFalse(observed[0]["evaluation_eligible"])
+                    with self.assertRaisesRegex(ValueError,"RFC3161"):
+                        archive_forecast("org/repo","token",7,p,now=NOW+timedelta(minutes=2))
+            self.assertEqual(observed,[])
 
     def test_settlement_rejects_origin_commit_mismatch(self):
         item=dict(forecast_row(),_github_run_id=7,_runner_commit_sha=SHA)

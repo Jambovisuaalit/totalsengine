@@ -124,6 +124,37 @@ def archive_forecast(repo: str, token: str, run_id: int, directory: Path,
         # GitHub ledger writes must finish BEFORE kickoff. Be conservative.
         if current >= iso(record["scheduled_tipoff"]):
             raise ValueError("Attempted to archive after scheduled kickoff")
+    # The original prediction JSONL is derived forecast metadata, not provider raw data.
+    # Pair the exact bytes with a cryptographically verified RFC3161 receipt.
+    # Never represent mutable GitHub history as WORM storage.
+    tsa_path = directory / "timestamp-receipt.json"
+    tsa = None
+    if rows:
+        if not tsa_path.is_file():
+            raise ValueError("No RFC3161 timestamp receipt for nonempty forecast run")
+        tsa = json.loads(tsa_path.read_bytes())
+        if (tsa.get("kind") != "PREGAME_RESEARCH_TSA_NOT_WORM"
+                or tsa.get("predictions_sha256") != digest(prediction_raw)
+                or tsa.get("n_forecasts") != len(rows)
+                or tsa.get("rfc3161_verified_at_capture") is not True
+                or tsa.get("evaluation_eligible") is not False
+                or tsa.get("publication_allowed") is not False
+                or tsa.get("gate_status") != "NO_GO"):
+            raise ValueError("TSA receipt mismatch or unsafe claims")
+        import hashlib
+        query = base64.b64decode(tsa["request_tsq_base64"], validate=True)
+        reply = base64.b64decode(tsa["response_tsr_base64"], validate=True)
+        if (digest(query) != tsa["request_sha256"]
+                or digest(reply) != tsa["response_sha256"]):
+            raise ValueError("Timestamp token bytes were modified")
+        signed = iso(tsa["signed_gen_time_utc"])
+        if signed >= min(iso(p["scheduled_tipoff"]) for p in rows):
+            raise ValueError("Signed time is after kickoff")
+        if signed > current:
+            raise ValueError("TSA date is in the future")
+        # Need an independent signature+chain recheck in the consuming verifier.
+        # The capture-time pinned OpenSSL result is preserved, not re-labelled as WORM.
+
     envelope = {
         "schema": 1, "kind": "FORECAST_RUN_RESEARCH_ONLY",
         "run_id": run_id, "generated_at_host_utc": generated.isoformat(),
@@ -133,7 +164,10 @@ def archive_forecast(repo: str, token: str, run_id: int, directory: Path,
         "runner_commit_sha": manifest_sha,
         "source_snapshot_hashes": manifest["source_sha256_by_day"],
         "rows": rows, "n_forecasts": len(rows),
-        "independently_timestamped": False,
+        "original_predictions_jsonl_base64": base64.b64encode(prediction_raw).decode("ascii"),
+        "rfc3161_receipt": tsa,
+        "independently_timestamped": bool(tsa),
+        "immutable_worm_verified": False,
         "source_availability_verified": False,
         "publication_allowed": False, "evaluation_eligible": False,
         "gate_status": "NO_GO",

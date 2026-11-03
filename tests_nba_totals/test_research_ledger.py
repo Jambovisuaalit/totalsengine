@@ -110,13 +110,12 @@ class TestResearchLedger(unittest.TestCase):
             def fake(repo, token, path, envelope):
                 captured.append(envelope)
                 return {"status":"CREATED"}
+            # Without a signed token, create-only archive MUST fail closed.
             with patch("nba_totals_research.research_ledger.create_only",fake):
-                result=archive_forecast("org/repo","token",2,root,
-                                        now=NOW+timedelta(minutes=2))
-            self.assertEqual(result["status"],"CREATED")
-            self.assertEqual(captured[0]["n_forecasts"],1)
-            self.assertEqual(captured[0]["source_snapshot_hashes"],{"2026-11-01":"abc"})
-            self.assertFalse(captured[0]["publication_allowed"])
+                with self.assertRaisesRegex(ValueError,"RFC3161"):
+                    archive_forecast("org/repo","token",2,root,
+                                     now=NOW+timedelta(minutes=2))
+            self.assertFalse(captured)
 
     def test_settlement_rejects_publication(self):
         with tempfile.TemporaryDirectory() as d:

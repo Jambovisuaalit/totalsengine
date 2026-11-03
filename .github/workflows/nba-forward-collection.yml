@@ -45,7 +45,28 @@ jobs:
               raise SystemExit("Research manifest source commit does not match triggering SHA")
           PY
 
-      - name: Preserve research source snapshots and forecasts
+      - name: Attest original derived forecast bytes with independent RFC3161 TSA
+        shell: bash
+        run: |
+          # Any live forecast must receive a verified pre-tipoff token or this run fails.
+          python -m nba_totals_research.research_tsa_bundle --directory "$RUNNER_TEMP/nba-paper"
+      - name: Confirm no unsupported WORM or publication claims
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"nba-paper"
+          m=json.loads((d/"manifest.json").read_text())
+          receipt=d/"timestamp-receipt.json"
+          if m["n_forecasts"] and not receipt.is_file():
+              raise SystemExit("Missing external timestamp receipt")
+          if receipt.is_file():
+              t=json.loads(receipt.read_text())
+              if t.get("immutable_worm_verified") is not False or t.get("evaluation_eligible") is not False:
+                  raise SystemExit("Unsupported evidence acceptance")
+          PY
+      - name: Preserve derived forecasts and signed timestamp evidence (not WORM)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: nba-paper-${{ github.run_id }}

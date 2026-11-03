@@ -83,7 +83,9 @@ class TestCollector(unittest.TestCase):
             result = run(Path(tmp), now=NOW, fetch=lambda day: payload)
             self.assertEqual(result["n_forecasts"],0)
             self.assertEqual(result["n_source_days"],38)
-            self.assertEqual(len(list((Path(tmp)/"source_snapshots").glob("*.json"))),38)
+            self.assertFalse((Path(tmp)/"source_snapshots").exists())
+            self.assertEqual(len(result["source_sha256_by_day"]), 38)
+            self.assertTrue((Path(tmp)/"manifest.json").exists())
             self.assertFalse(result["publication_allowed"])
 
 if __name__ == "__main__":
