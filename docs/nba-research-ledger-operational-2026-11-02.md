@@ -1,3 +1,6 @@
+> Scope: **DATED SNAPSHOT / historical observation**. Counts, execution status and deployment observations apply only to the stated snapshot.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # NBA paper research ledger — operational verification (2026-11-02)
 
 ## Result

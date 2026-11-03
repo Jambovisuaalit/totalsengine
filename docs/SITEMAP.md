@@ -1,3 +1,6 @@
+> Scope: **LEGACY DOCTORE / historical migration**. Not the current TotalsEngine architecture or release checklist.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # Doctore AI – Sisäinen Linkkikartta (Sitemap)
 
 > URL-tason navigaatiorakenne ja sivujen väliset linkit

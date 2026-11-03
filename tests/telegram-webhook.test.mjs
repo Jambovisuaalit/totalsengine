@@ -1,6 +1,7 @@
+import { TestUpdateStore } from "./helpers/update-store.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
-import { safeSecretMatch,commandResponse,processTelegramUpdate } from "../server/telegram-webhook.mjs";
+import { safeSecretMatch,commandResponse,processTelegramUpdate as processRawUpdate } from "../server/telegram-webhook.mjs";
 const secret="telegram_test_secret";
 const update=(text,chatId=412)=>({update_id:100,message:{text,chat:{id:chatId,type:"private"}}});
 function req(body, header=secret, options={}) {return new Request("https://example.com/api/telegram/webhook",{method:"POST",headers:{"content-type":"application/json",...(header?{"x-telegram-bot-api-secret-token":header}:{}),...(options.headers||{})},body:JSON.stringify(body)});}
@@ -44,3 +45,7 @@ test("payload bounds and malformed update",async()=>{
  assert.equal((await processTelegramUpdate(req(update(huge)),{secret,token:"dummy"})).status,413);
  assert.equal((await processTelegramUpdate(req({message:{text:"/start"}}),{secret,token:"dummy"})).status,400);
 });
+
+function processTelegramUpdate(request, options) {
+ return processRawUpdate(request, { updateStore: new TestUpdateStore(), ...options });
+}

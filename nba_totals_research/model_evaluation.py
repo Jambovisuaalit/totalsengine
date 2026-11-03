@@ -18,6 +18,7 @@ def evaluate(rows: tuple[EvaluationRow, ...], *, bins: int = 10) -> dict:
         raise ValueError("Nonempty evaluation and at least two bins required")
     errors, brier, market_brier, logloss, market_logloss = [], [], [], [], []
     bucket = [[] for _ in range(bins)]
+    market_observations, game_results, point_forecasts = set(), {}, {}
     for row in rows:
         p, q = row.prediction, row.quote
         p.validate(q)
@@ -30,14 +31,27 @@ def evaluate(rows: tuple[EvaluationRow, ...], *, bins: int = 10) -> dict:
             raise ValueError("Exact opposite same-bookmaker market required")
         if type(row.actual_total) is not int or row.actual_total < 0:
             raise ValueError("Invalid settled full-game total")
+        game = p.market.game_id
+        if game in game_results and game_results[game] != row.actual_total:
+            raise ValueError("Conflicting settled total for game")
+        game_results[game] = row.actual_total
+        observation = (game, p.version, p.bookmaker, p.quote_id, p.market.line, p.market.side)
+        if observation in market_observations:
+            raise ValueError("Duplicate market prediction")
+        market_observations.add(observation)
+        point_key = (game, p.version)
+        frozen = (p.expected_total, p.predicted_at)
+        if point_key in point_forecasts and point_forecasts[point_key] != frozen:
+            raise ValueError("Conflicting frozen game/model point forecast")
+        if point_key not in point_forecasts:
+            errors.append(float(p.expected_total) - row.actual_total)
+            point_forecasts[point_key] = frozen
         if p.market.side == "OVER":
             outcome = int(row.actual_total > p.market.line)
             push = row.actual_total == p.market.line
         else:
             outcome = int(row.actual_total < p.market.line)
             push = row.actual_total == p.market.line
-        e = float(p.expected_total) - row.actual_total
-        errors.append(e)
         if push:
             # Pushes count for total-point error, not binary outcome scoring.
             continue
@@ -68,7 +82,10 @@ def evaluate(rows: tuple[EvaluationRow, ...], *, bins: int = 10) -> dict:
         for i, values in enumerate(bucket) if values
     ]
     return {
-        "schema_version": 1, "n_scored": len(brier), "n_total_errors": len(errors), "n_input": len(rows),
+        "schema_version": 2, "n_scored": len(brier), "n_total_errors": len(errors), "n_input": len(rows),
+        "n_unique_game_model_pairs": len(point_forecasts),
+        "point_error_basis": "one_frozen_forecast_per_game_model",
+        "binary_score_basis": "unique_market_prediction_non_push",
         "mae": mean(abs(x) for x in errors),
         "rmse": sqrt(mean(x*x for x in errors)),
         "brier": mean(brier), "market_brier": mean(market_brier),

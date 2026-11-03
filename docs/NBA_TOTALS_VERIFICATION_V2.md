@@ -1,3 +1,6 @@
+> Scope: **RESEARCH CONTRACT / prototype scope**. Requirements apply to the named component. Old current-state, dependency and deployment observations are superseded.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # Evidence Collector v2 — independent-verifier contract (offline prototype)
 
 **Scope:** Draft PR #3 only. No provider integration, no external WORM storage,

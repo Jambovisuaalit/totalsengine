@@ -1,3 +1,6 @@
+> Scope: **LEGACY DOCTORE / historical migration**. Not the current TotalsEngine architecture or release checklist.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # Lovable to Vercel — staging notes
 
 - Source snapshot: Lovable DoctoreAI, project 02d26369-655d-42eb-92de-59bbe9ff4086; compare to its revision at migration time.

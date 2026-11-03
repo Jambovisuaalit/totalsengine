@@ -38,7 +38,7 @@ const FAQ = [
   },
 ];
 
-const GITHUB_DOC = "https://github.com/Jambovisuaalit/totalsengine/blob/research/nba-v2-external-evidence-integration/docs/nba-research-ledger-operational-2026-11-02.md";
+const GITHUB_DOC = "https://github.com/Jambovisuaalit/totalsengine/blob/main/docs/PROJECT_STATUS.md";
 
 const Landing = () => {
   const [menuOpen, setMenuOpen] = useState(false);

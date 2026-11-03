@@ -120,7 +120,7 @@ export function AnalysisFilters({ edges, filters, onFiltersChange }: AnalysisFil
 
         {/* Date Filter */}
         <div className="space-y-2">
-          <Label htmlFor="date-filter">Date</Label>
+          <Label htmlFor="date-filter">Date (UTC)</Label>
           <Input
             id="date-filter"
             type="date"

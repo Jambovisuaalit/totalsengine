@@ -1,3 +1,6 @@
+> Scope: **DATED SNAPSHOT / historical observation**. Counts, execution status and deployment observations apply only to the stated snapshot.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # NBA Totals Engine — visual QA acceptance report
 Date: 2026-10-27 (Helsinki)
 Scope: static NBA Totals Engine landing on `landing/nba-totals`, separate from DoctoreAI.

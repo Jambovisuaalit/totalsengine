@@ -1,3 +1,6 @@
+> Scope: **DATED SNAPSHOT / historical observation**. Counts, execution status and deployment observations apply only to the stated snapshot.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # Retrospective Ridge experiment: reproducibility checkpoint (2026-11-02)
 
 Research-only. **No historical pre-game evidence or profitable market result implied.**
