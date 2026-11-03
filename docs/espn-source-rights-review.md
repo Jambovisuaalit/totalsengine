@@ -12,3 +12,7 @@ Status: **RIGHTS REVIEW REQUIRED — NO COMMERCIAL USE APPROVED**.
 - None of these observations satisfies source, rights, execution, model, or publisher authorization gates. Publication and wagers remain halted.
 
 Before expanding storage or use: review ESPN's applicable API/site terms with counsel, establish contractual scope (access, retention, redistribution, jurisdiction), document lawful basis and retention, and enroll an approved independent TSA trust root. Until then, retain no raw provider responses beyond the single isolated process lifetime.
+
+## Implementation alignment (PR #26, pending merge)
+
+New forecast collection and settlement code no longer writes ESPN raw source JSON to the GitHub Actions upload directory. Forecast manifests retain SHA-256 source digests; a digest without the original bytes is **not** independent proof of what ESPN served or when. Previously uploaded 30-day artifacts can still contain raw ESPN responses and require a separate inventory, permission review and retention remediation. Existing raw data are not claimed deleted. Access rights and even the research processing basis still require review; this patch grants no licence.
