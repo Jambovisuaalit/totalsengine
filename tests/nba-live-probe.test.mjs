@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { compareSourceSnapshots } from '../server/nba-live-probe.mjs';
+const snap = x => Buffer.from(JSON.stringify(x));
+const ev = (id='1',away='PHI',home='DET',tip='2026-11-05T00:00Z')=>({id,date:tip,competitions:[{competitors:[{homeAway:'home',team:{abbreviation:home}},{homeAway:'away',team:{abbreviation:away}}]}]});
+const g = (id=2,away='PHI',home='DET',tip='2026-11-05T00:00:00Z')=>({id,datetime:tip,home_team:{abbreviation:home},visitor_team:{abbreviation:away}});
+const compare=(es=[ev()],bd=[g()])=>compareSourceSnapshots(snap({events:es}),snap({data:bd,meta:{next_cursor:null}}),'2026-11-03T05:00:00Z');
+test('exact match differing time formatting',()=>{const r=compare();assert.equal(r.matched_count,1);assert.equal(r.gate_status,'NO_GO');assert.equal(r.evaluation_eligible,false)});
+test('team mismatch remains unmatched',()=>assert.equal(compare([ev('1','ATL','DET')]).matched_count,0));
+test('tipoff mismatch remains unmatched',()=>assert.equal(compare([ev('1','PHI','DET','2026-11-05T01:00Z')]).matched_count,0));
+test('duplicated ESPN ID fails closed',()=>assert.throws(()=>compare([ev(),ev()]),/AMBIGUOUS_ESPN_GAME/));
+test('duplicated BDL ID fails closed',()=>assert.throws(()=>compare([ev()],[g(),g()]),/AMBIGUOUS_BDL_GAME/));
+test('incomplete BDL pagination rejected',()=>assert.throws(()=>compareSourceSnapshots(snap({events:[ev()]}),snap({data:[g()],meta:{next_cursor:2}}),'2026-11-03T05:00:00Z'),/PAGINATION/));
+test('invalid BDL JSON rejected',()=>assert.throws(()=>compareSourceSnapshots(snap({events:[ev()]}),Buffer.from('garbage'),'2026-11-03T05:00:00Z'),/INVALID_JSON/));
+test('normalizes explicit ESPN team aliases',()=>assert.equal(compare([ev('8','NY','GS')],[g(9,'NYK','GSW')]).matched_count,1));
