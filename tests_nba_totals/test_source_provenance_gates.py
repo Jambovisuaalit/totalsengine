@@ -32,6 +32,13 @@ class TestSourceProvenance(unittest.TestCase):
         self.assertFalse(result["licensed_use_verified"])
         with self.assertRaises(EvidenceError):
             source_receipt("ESPN",b'{"events":[]}',EARLY,"a"*64,"https://site.api.espn.com/scoreboard")
+    def test_balldontlie_single_game_payload(self):
+        raw=b'{"data":{"id":89}}'
+        receipt=source_receipt("BALLDONTLIE",raw,EARLY,_sha(raw),
+                               "https://api.balldontlie.io/v1/games/89")
+        self.assertEqual(receipt["status"],"LOCAL_INTEGRITY_ONLY")
+        self.assertFalse(receipt["source_publication_verified"])
+
     def test_valid_local_identity_is_not_independent_proof(self):
         outcome=matches()
         self.assertEqual(outcome["matches"][0]["balldontlie_game_id"],"89")
