@@ -129,6 +129,12 @@ def archive_bundle(payloads, *, workdir, tsa_url, tsa_ca, tsa_signer,
     for k, meta in manifest['artifacts'].items():
         if sha(payloads[k]) != meta['sha256'] or len(payloads[k]) != meta['size']:
             raise ValueError('Bundle changed before timestamp')
+    from .history_evidence import verify_history_archive
+    history = json.loads(payloads['history_evidence'])
+    predictions = json.loads(payloads['predictions'])
+    blobs = {k: v for k, v in payloads.items() if k not in
+             {'event', 'predictions', 'quotes', 'history_evidence', 'bundle_manifest'}}
+    verify_history_archive(history, blobs, predictions, s3_client, now())
     cutoff = utc(manifest['scheduled_start_utc'])
     if not utc(manifest['captured_at_host_utc']) <= utc(now()) < cutoff:
         raise ValueError('Archive window closed or clock moved backward')
