@@ -20,6 +20,22 @@ class ProspectiveCaptureTests(unittest.TestCase):
                     'quote_raw':b'original atomic provider quote response'}
         self.blobs['training_manifest']=json.dumps({'training_data_end_utc':'2026-11-04T00:00:00Z',
                                                     'model_sha256':sha(self.blobs['model'])}).encode()
+        # Each selected history game keeps exact original ESPN response bytes.
+        self.hist=[]
+        for i in range(6):
+            gid=f'h{i}'
+            raw=json.dumps({'events':[{'id':gid,'date':'2026-10-25T02:00:00Z',
+                'status':{'type':{'completed':True}},
+                'competitions':[{'competitors':[{'homeAway':'home','score':'110'},
+                                              {'homeAway':'away','score':'105'}]}]}]}).encode()
+            key=f'history_raw_{i}'
+            self.blobs[key]=raw
+            self.hist.append({'source_game_id':gid,'raw_artifact_key':key,
+                'raw_sha256':sha(raw),'fetched_at_utc':'2026-11-05T22:00:00Z',
+                'first_final_observed_at_utc':'2026-11-05T21:59:00Z',
+                'immutable_archive_ref':{'bucket':'synthetic','key':f'history/{gid}',
+                    'version_id':'v1','sha256':sha(raw),
+                    'stored_at_server_utc':'2026-11-05T22:00:01Z'}})
         self.event={'game_id':'0022600200','scheduled_start_utc':'2026-11-06T02:00:00Z',
                     'actual_start_utc':None,'state':'PRE_GAME','state_observed_at_utc':'2026-11-06T00:59:59Z',
                     'raw_retention_approved':True}
@@ -28,14 +44,35 @@ class ProspectiveCaptureTests(unittest.TestCase):
               'selection':'over','line':225.5}
         self.pred=[dict(base,raw_artifact_key='prediction_raw',raw_sha256=sha(self.blobs['prediction_raw']),
                         prediction_created_at_utc='2026-11-06T00:59:58Z',features_as_of_utc='2026-11-05T23:00:00Z',
-                        model_sha256=sha(self.blobs['model']),p_win=.52,p_push=0,p_loss=.48)]
+                        model_sha256=sha(self.blobs['model']),
+                        history_source_game_ids={'dal':['h0','h1','h2'],'sa':['h3','h4','h5']},p_win=.52,p_push=0,p_loss=.48)]
         self.quotes=[dict(base,raw_artifact_key='quote_raw',raw_sha256=sha(self.blobs['quote_raw']),
                           fetched_at_utc='2026-11-06T00:59:59Z',market_last_update_utc='2026-11-06T00:59:50Z',
                           bookmaker_last_update_utc='2026-11-06T00:59:50Z',decimal_odds=1.95)]
 
     def run_capture(self):
         return prepare_bundle(event=self.event,predictions=self.pred,quotes=self.quotes,
-                              blobs=self.blobs,now=self.now)
+                              blobs=self.blobs,now=self.now,history_evidence=self.hist)
+
+    def test_history_missing_or_wrong_final_blocks(self):
+        self.hist.pop()
+        with self.assertRaises(ValueError): self.run_capture()
+        self.setUp()
+        self.blobs['history_raw_0']=self.blobs['history_raw_0'].replace(b'true',b'false')
+        self.hist[0]['raw_sha256']=sha(self.blobs['history_raw_0'])
+        self.hist[0]['immutable_archive_ref']['sha256']=sha(self.blobs['history_raw_0'])
+        with self.assertRaises(ValueError): self.run_capture()
+
+    def test_history_future_or_unarchived_blocks(self):
+        self.hist[0]['fetched_at_utc']='2026-11-06T00:00:00Z'
+        with self.assertRaises(ValueError): self.run_capture()
+        self.hist[0]['fetched_at_utc']='2026-11-05T22:00:00Z'
+        self.hist[0].pop('immutable_archive_ref')
+        with self.assertRaises(ValueError): self.run_capture()
+
+    def test_selected_history_must_match_evidence(self):
+        self.pred[0]['history_source_game_ids']['dal'][0]='other'
+        with self.assertRaises(ValueError): self.run_capture()
 
     def test_capture_binds_exact_bytes_but_cannot_claim_eligibility(self):
         result=self.run_capture();m=json.loads(result['bundle_manifest'])
