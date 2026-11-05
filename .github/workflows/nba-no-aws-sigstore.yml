@@ -1,0 +1,56 @@
+name: NBA no-AWS Sigstore evidence canary
+on:
+  push:
+    branches:
+      - feat/no-aws-sigstore-evidence-*
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+jobs:
+  synthetic-attestation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HALTED: "1"
+      PUBLICATION_ALLOWED: "false"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Assert fail-closed environment
+        run: |
+          test "$HALTED" = "1"
+          test "$PUBLICATION_ALLOWED" = "false"
+      - name: Generate synthetic original bytes and evidence manifest
+        run: |
+          python -m nba_totals_research.no_aws_evidence_canary --out no-aws-canary --run-id "$GITHUB_RUN_ID" --commit "$GITHUB_SHA"
+      - name: Verify local source to manifest binding
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from nba_totals_research.no_aws_evidence_canary import verify
+          assert verify(Path("no-aws-canary"))["local_integrity_verified"] is True
+          PY
+      - name: Attest manifest using GitHub OIDC and public Sigstore
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-path: no-aws-canary/manifest.json
+      - name: Verify manifest's signed provenance independently using GitHub CLI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify no-aws-canary/manifest.json --repo "$GITHUB_REPOSITORY"
+      - name: Preserve test bytes for bounded replay only
+        uses: actions/upload-artifact@v4
+        with:
+          name: no-aws-sigstore-canary-${{ github.run_id }}
+          path: no-aws-canary/
+          if-no-files-found: error
+          retention-days: 7
