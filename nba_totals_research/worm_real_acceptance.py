@@ -70,6 +70,20 @@ def run(*, client, bucket: str, confirmed_bucket: str, acknowledged: bool,
         raise ValueError(f"Atomic first-write contract failed: {attempts!r}")
 
     version = created[0]["version"]
+    current = client.head_object(Bucket=bucket, Key=key)
+    if current.get("VersionId") != version:
+        raise ValueError("First-write winner is not the current object version")
+    # Ensure a later conditional overwrite cannot create a new version.
+    try:
+        client.put_object(Bucket=bucket, Key=key, Body=b"synthetic-later-writer",
+                          IfNoneMatch="*", ObjectLockMode="COMPLIANCE",
+                          ObjectLockRetainUntilDate=retain_until)
+    except ClientError as exc:
+        if _code(exc) not in {"PreconditionFailed", "412"}:
+            raise
+        later_write_rejected = True
+    else:
+        raise ValueError("Atomic first-write key allowed a later overwrite")
     kwargs = {"Bucket": bucket, "Key": key, "VersionId": version}
     head = client.head_object(**kwargs)
     returned = client.get_object(**kwargs)["Body"].read()
@@ -99,6 +113,7 @@ def run(*, client, bucket: str, confirmed_bucket: str, acknowledged: bool,
         "test": "REAL_S3_OBJECT_LOCK_ACCEPTANCE_SYNTHETIC",
         "bucket": bucket, "key": key, "version_id": version,
         "created": len(created), "conflicts": len(conflicts),
+        "later_conditional_write_rejected": later_write_rejected,
         "readback_sha256": sha256(returned),
         "byte_exact_readback": True,
         "lock_mode": retention["Mode"],
