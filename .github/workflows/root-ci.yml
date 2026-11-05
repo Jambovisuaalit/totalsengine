@@ -33,3 +33,12 @@ jobs:
           persist-credentials: false
       - run: python3 -m pip install "cryptography==46.0.4"
       - run: python3 -m unittest discover -s tests_nba_totals -p 'test_*.py' -v
+  nhl-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Run NHL evidence tests (required release gate)
+        run: python3 -m unittest discover -s tests_nhl_evidence -p 'test_*.py' -v
