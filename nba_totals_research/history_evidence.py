@@ -28,6 +28,8 @@ def verify_history(predictions, history, blobs, now):
         if not isinstance(ref, dict) or not all(ref.get(k) for k in
                 ("bucket", "key", "version_id", "sha256", "stored_at_server_utc")):
             raise ValueError("Missing version-specific archive reference")
+        if not row.get("immutable_first_final_ref"):
+            raise ValueError("Immutable first-FINAL ledger missing")
         if ref["sha256"] != row["raw_sha256"]:
             raise ValueError("Archived history hash mismatch")
         if not observed <= utc(ref["stored_at_server_utc"]) <= utc(now):
@@ -93,8 +95,12 @@ def verify_history_archive(history, blobs, predictions, client, now):
             for gid in ids:
                 cutoffs[str(gid)] = min(cutoffs.get(str(gid), utc(pred["features_as_of_utc"])),
                                         utc(pred["features_as_of_utc"]))
+    from .first_final_ledger import verify_first_final_ref
     for row in history:
         gid = str(row["source_game_id"])
+        verify_first_final_ref(client=client, row=row,
+                               original_raw=blobs[row["raw_artifact_key"]],
+                               feature_at=cutoffs[gid], now=now)
         ref = row["immutable_archive_ref"]
         kwargs = {"Bucket": ref["bucket"], "Key": ref["key"], "VersionId": ref["version_id"]}
         head = client.head_object(**kwargs)
