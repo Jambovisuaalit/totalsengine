@@ -1,0 +1,48 @@
+name: NHL protected Preview POST acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview-post:
+    runs-on: ubuntu-latest
+    environment: nhl-preview-e2e
+    timeout-minutes: 5
+    steps:
+      - name: Verify fixed deployment and POST authentication gates
+        shell: bash
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]]; then
+            echo "::error::Missing protected environment secret VERCEL_AUTOMATION_BYPASS_SECRET"
+            exit 1
+          fi
+          python3 - <<'PY'
+          import os, urllib.request, urllib.error, json
+          origin="https://totalsengine-4ixau1a5e-info-32533854s-projects.vercel.app"
+          endpoint=origin+"/api/tools/nhl-odds"
+          bypass=os.environ["VERCEL_AUTOMATION_BYPASS_SECRET"]
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+          opener=urllib.request.build_opener(NoRedirect())
+          def check(label, auth=None):
+              headers={"Content-Type":"application/json","x-vercel-protection-bypass":bypass}
+              if auth: headers["Authorization"]=auth
+              request=urllib.request.Request(endpoint,data=b"{}",headers=headers,method="POST")
+              try:
+                  response=opener.open(request,timeout=15)
+                  status=response.status
+                  payload=response.read(2048)
+              except urllib.error.HTTPError as error:
+                  status=error.code
+                  payload=error.read(2048)
+              assert status==401, f"{label}: expected 401, got {status}"
+              assert json.loads(payload)=={"error":"unauthorized"}, f"{label}: not application 401"
+              print(f"{label}: PASS (application 401)")
+          check("missing bearer")
+          check("invalid bearer","Bearer invalid-preview-smoke-token")
+          print("Preview negative-auth POST acceptance PASS; provider not called")
+          PY
