@@ -9,15 +9,15 @@ RECEIPT = "2026-11-05T20:00:00Z"
 
 def fixture():
     return json.dumps({"id":"odds-1","commence_time":START,
-        "home_team":"Dallas Stars","away_team":"Columbus Blue Jackets",
+        "home_team":"Columbus Blue Jackets","away_team":"Dallas Stars",
         "bookmakers":[{"last_update":"2026-11-05T19:50:00Z",
             "markets":[{"last_update":"2026-11-05T19:51:00Z",
                 "key":"totals","outcomes":[{"name":"Over","point":5.5,"price":-110}]}]}]}).encode()
 
 def kwargs(folder):
     return dict(raw_odds=fixture(),fetched_at_utc=RECEIPT,
-        canonical_event_id="nhl-1",odds_event_id="odds-1",
-        home_team="Dallas Stars",away_team="Columbus Blue Jackets",
+        canonical_event_id="2026020258",odds_event_id="odds-1",
+        home_team="Columbus Blue Jackets",away_team="Dallas Stars",
         commence_time=START,goalies={"home":{"status":"UNCONFIRMED"},
         "away":{"status":"UNCONFIRMED"}},prediction=None,archive_dir=folder)
 
@@ -34,7 +34,7 @@ class EvidenceTests(unittest.TestCase):
             with self.assertRaises(ValueError): capture_one_event(**args)
     def test_reject_wrong_team_order(self):
         with tempfile.TemporaryDirectory() as d:
-            args=kwargs(d); args["home_team"]="Columbus Blue Jackets"
+            args=kwargs(d); args["home_team"]="Dallas Stars"
             with self.assertRaises(ValueError): capture_one_event(**args)
     def test_reject_duplicate_write(self):
         with tempfile.TemporaryDirectory() as d:
