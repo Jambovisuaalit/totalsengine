@@ -98,3 +98,37 @@ def register_first_final(*, client, bucket: str, game_id: str, raw: bytes,
         "source_availability_verified": False,
         "evaluation_eligible": False,
     }
+
+
+def verify_first_final_ref(*, client, row, original_raw: bytes, feature_at, now):
+    """Verify that a selected FINAL version was in immutable storage pre-cutoff."""
+    ref = row.get("immutable_first_final_ref")
+    if not isinstance(ref, dict) or not all(ref.get(k) for k in
+            ("bucket", "key", "version_id", "sha256", "stored_at_server_utc")):
+        raise ValueError("Missing first FINAL registry version")
+    game_id = str(row["source_game_id"])
+    if ref["key"] != f"nba-history-first-final/{game_id}/first.json":
+        raise ValueError("First FINAL ledger key mismatch")
+    kwargs = {"Bucket": ref["bucket"], "Key": ref["key"],
+              "VersionId": ref["version_id"]}
+    head = client.head_object(**kwargs)
+    observed = utc(head["LastModified"])
+    if (observed != utc(ref["stored_at_server_utc"]) or
+        observed > utc(feature_at) or observed > utc(now) or
+        observed != utc(row["first_final_observed_at_utc"])):
+        raise ValueError("First FINAL evidence later than feature cutoff")
+    retention = client.get_object_retention(**kwargs)["Retention"]
+    if retention.get("Mode") != "COMPLIANCE" or utc(retention["RetainUntilDate"]) <= utc(now):
+        raise ValueError("First FINAL registry not immutable")
+    ledger_raw = client.get_object(**kwargs)["Body"].read()
+    if sha(ledger_raw) != ref["sha256"]:
+        raise ValueError("First FINAL registry digest mismatch")
+    ledger = json.loads(ledger_raw)
+    source_raw = base64.b64decode(ledger["raw_b64"], validate=True)
+    if source_raw != original_raw or ledger["raw_sha256"] != sha(original_raw):
+        raise ValueError("First FINAL bytes disagree with historical features")
+    _validate(source_raw, game_id)
+    if (ledger["source_game_id"] != game_id or
+        utc(ledger["fetched_at_utc"]) > observed):
+        raise ValueError("First FINAL registry chronology mismatch")
+    return True
