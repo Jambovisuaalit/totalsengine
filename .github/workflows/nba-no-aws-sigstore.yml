@@ -46,7 +46,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh attestation verify no-aws-canary/manifest.json --repo "$GITHUB_REPOSITORY"
+          for attempt in 1 2 3 4 5 6; do
+            if gh attestation verify no-aws-canary/manifest.json --repo "$GITHUB_REPOSITORY"; then
+              echo "SIGNED_PROVENANCE_VERIFIED"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "NO_VERIFIED_SIGSTORE_PROVENANCE" >&2
+          exit 1
       - name: Preserve test bytes for bounded replay only
         uses: actions/upload-artifact@v4
         with:
