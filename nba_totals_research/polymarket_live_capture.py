@@ -89,7 +89,9 @@ def capture(event_slug: str, market_slug: str, out: Path, *, clock=None) -> dict
     receipt = {
         "schema": 1, "class": "LIVE_CAPTURE_PENDING_INDEPENDENT_ATTESTATION",
         "venue": "polymarket.us", "event_slug": event_slug, "event_id": str(event.get("id")),
-        "market_slug": market_slug, "market_id": str(market["id"]),\n        "bbo_best_bid": str(market_data["bestBid"]["value"]),\n        "bbo_best_ask": str(market_data["bestAsk"]["value"]),
+        "market_slug": market_slug, "market_id": str(market["id"]),
+        "bbo_best_bid": str(market_data["bestBid"]["value"]),
+        "bbo_best_ask": str(market_data["bestAsk"]["value"]),
         "market_line": str(market["line"]), "market_type": "basketball_team_full_game_total",
         "event_api_path": event_path, "bbo_api_path": book_path,
         "event_raw_sha256": digest(event_raw), "bbo_raw_sha256": digest(quote_raw),
@@ -150,7 +152,7 @@ def capture(event_slug: str, market_slug: str, out: Path, *, clock=None) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--event-slug", required=True)
-    parser.add_argument("--market-slug", required=True)\n    parser.add_argument("--bbo-symbol", required=True, help="Verified instrument symbol from provider reference-data endpoint")
+    parser.add_argument("--market-slug", required=True)
     parser.add_argument("--out", type=Path, required=True)
     a = parser.parse_args()
     print(json.dumps(capture(a.event_slug, a.market_slug, a.out), sort_keys=True))
