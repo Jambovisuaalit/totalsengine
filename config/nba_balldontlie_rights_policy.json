@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "review_status": "PENDING",
+  "source_id": "balldontlie-nba",
+  "endpoint_id": "games-v1",
+  "allow_capture": false,
+  "allow_raw_retention": false,
+  "allow_sigstore_digest": false,
+  "review_reference": "https://www.balldontlie.io/terms.html#section-6",
+  "reviewed_by": null,
+  "valid_from_utc": "2026-11-05T00:00:00Z",
+  "valid_until_utc": "2027-11-05T00:00:00Z",
+  "notes": "Public BALLDONTLIE terms 2026-10-20 allow lawfully obtained Data to be cached, archived, used commercially and redistributed by the provider; permissions do not clear third-party rights. Credentials, API plan and third-party clearance are unverified. Public artifact retention is off pending approval.",
+  "allow_public_artifact_raw": false
+}

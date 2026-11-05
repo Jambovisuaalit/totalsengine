@@ -1,0 +1,92 @@
+name: NBA approved source capture and Sigstore evidence
+on:
+  push:
+    branches:
+      - feat/nba-real-source-evidence-gate-*
+  schedule:
+    - cron: '15 12 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+jobs:
+  licensed-source-canary:
+    if: ${{ vars.NBA_SOURCE_CAPTURE_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HALTED: "1"
+      PUBLICATION_ALLOWED: "false"
+      BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+      GH_TOKEN: ${{ github.token }}
+      BUNDLE_POLICY: config/nba_balldontlie_rights_policy.json
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify approved source and storage policy before network
+        run: |
+          test "$HALTED" = "1" && test "$PUBLICATION_ALLOWED" = "false"
+          test -n "$BALLDONTLIE_API_KEY"
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from nba_totals_research.real_source_evidence import assert_rights
+          policy=json.loads(Path("config/nba_balldontlie_rights_policy.json").read_bytes())
+          assert_rights(policy,source_id="balldontlie-nba", endpoint_id="games-v1",
+                        captured_at=datetime.now(timezone.utc))
+          if policy.get("allow_public_artifact_raw") is not True:
+              raise ValueError("Raw evidence cannot be uploaded to public repo artifacts")
+          PY
+      - name: Fetch one future NBA game with original source bytes
+        run: |
+          python -m nba_totals_research.capture_bdl_pre_forecast \
+            --day "$(date -u +%F)" \
+            --game-id auto \
+            --rights-policy "$BUNDLE_POLICY" \
+            --out nba-real-source
+      - name: Attest raw-source digest manifest before any forecast
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-path: nba-real-source/manifest.json
+      - name: Verify signer identity, signed digest and transparency log
+        env:
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          test -s "$BUNDLE_PATH"
+          gh attestation verify nba-real-source/manifest.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --bundle "$BUNDLE_PATH" \
+            --source-digest "$GITHUB_SHA" \
+            --source-ref "$GITHUB_REF" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/nba-bdl-source-evidence.yml" \
+            --format json > nba-real-source/verified-attestation.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from nba_totals_research.no_aws_receipt_check import validate_receipt
+          from nba_totals_research.real_source_evidence import sha256
+          manifest=Path("nba-real-source/manifest.json")
+          raw=Path("nba-real-source/source-original.json").read_bytes()
+          declared=json.loads(manifest.read_bytes())
+          if declared["raw_sha256"] != sha256(raw):
+              raise ValueError("Source bytes diverged before attestation")
+          receipt=validate_receipt(manifest,Path("nba-real-source/verified-attestation.json"),
+                                   commit_sha=os.environ["GITHUB_SHA"])
+          Path("nba-real-source/verification-receipt.json").write_text(
+              json.dumps(receipt,sort_keys=True))
+          PY
+      - name: Archive signed source bundle for reproducibility
+        uses: actions/upload-artifact@v4
+        with:
+          name: nba-licensed-preforecast-${{ github.run_id }}
+          path: nba-real-source/
+          if-no-files-found: error
+          retention-days: 7
