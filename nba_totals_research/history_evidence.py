@@ -111,3 +111,40 @@ def verify_history_archive(history, blobs, predictions, client, now):
         if actual != blobs[row["raw_artifact_key"]] or sha(actual) != ref["sha256"]:
             raise ValueError("Historical version bytes differ from source")
     return False  # Source provider first-publication availability remains unverified.
+
+
+def capture_first_final_source(*, raw, source_game_id, fetched_at_utc, client,
+                               bucket, retain_until):
+    """Archive a first *observed* FINAL response before feature construction.
+
+    Call this on the first FINAL observation from the live collector. Its
+    receipt is not evidence of ESPN's first publication time. Never backdate.
+    Re-observations must retain the original receipt in an external ledger.
+    """
+    from datetime import datetime, timezone
+    from .forward_pipeline import put_object_lock
+    observed = utc(fetched_at_utc)
+    if observed > datetime.now(timezone.utc):
+        raise ValueError("Observation clock is in the future")
+    if not isinstance(raw, bytes) or not raw:
+        raise ValueError("Original source response bytes required")
+    doc = json.loads(raw)
+    matches = [e for e in doc.get("events", [])
+               if str(e.get("id")) == str(source_game_id)]
+    if len(matches) != 1 or matches[0].get("status", {}).get("type", {}).get("completed") is not True:
+        raise ValueError("Source event not FINAL")
+    # The content hash is stable; object version ID is the immutable identity.
+    digest = sha(raw)
+    key = f"nba-history-first-final/{source_game_id}/{digest}"
+    pointer = put_object_lock(client, bucket=bucket, key=key, raw=raw,
+                              retain_until=retain_until)
+    head = client.head_object(Bucket=bucket, Key=key, VersionId=pointer["version_id"])
+    server_at = utc(head["LastModified"])
+    if server_at < observed:
+        raise ValueError("Archive server timestamp predates fetch")
+    return {"source_game_id": str(source_game_id),
+            "fetched_at_utc": observed.isoformat(),
+            "first_final_observed_at_utc": observed.isoformat(),
+            "raw_sha256": digest,
+            "immutable_archive_ref": {**pointer,
+                "stored_at_server_utc": server_at.isoformat()}}
