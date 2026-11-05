@@ -42,13 +42,32 @@ jobs:
         uses: actions/attest@v4
         with:
           subject-path: no-aws-canary/manifest.json
-      - name: Verify manifest's signed provenance independently using GitHub CLI
+      - name: Verify signature, source commit, subject digest and transparency proof
         env:
           GH_TOKEN: ${{ github.token }}
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
         run: |
+          test -s "$BUNDLE_PATH"
           for attempt in 1 2 3 4 5 6; do
-            if gh attestation verify no-aws-canary/manifest.json --repo "$GITHUB_REPOSITORY"; then
-              echo "SIGNED_PROVENANCE_VERIFIED"
+            if gh attestation verify no-aws-canary/manifest.json \
+                --repo "$GITHUB_REPOSITORY" \
+                --bundle "$BUNDLE_PATH" \
+                --source-digest "$GITHUB_SHA" \
+                --source-ref "$GITHUB_REF" \
+                --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/nba-no-aws-sigstore.yml" \
+                --format json > no-aws-canary/verified-attestation.json; then
+              python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from nba_totals_research.no_aws_receipt_check import validate_receipt
+          result = validate_receipt(Path("no-aws-canary/manifest.json"),
+                                    Path("no-aws-canary/verified-attestation.json"),
+                                    commit_sha=os.environ["GITHUB_SHA"])
+          Path("no-aws-canary/verification-receipt.json").write_text(
+              json.dumps(result, sort_keys=True))
+          print(json.dumps(result, sort_keys=True))
+          PY
               exit 0
             fi
             sleep 5
