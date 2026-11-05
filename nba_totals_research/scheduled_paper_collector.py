@@ -53,18 +53,11 @@ def team_code(value: str) -> str:
 
 
 def download_day(day: date) -> bytes:
-    url = ("https://site.api.espn.com/apis/site/v2/sports/"
-           f"basketball/nba/scoreboard?dates={day:%Y%m%d}&limit=100")
-    req = Request(url, headers={"Accept": "application/json",
-                 "User-Agent": "TotalsEngineResearch/1.0"}, method="GET")
-    with urlopen(req, timeout=15) as response:
-        if response.status != 200:
-            raise ValueError("Source HTTP error")
-        payload = response.read(2_000_001)
-        if len(payload) > 2_000_000:
-            raise ValueError("Source response too large")
-    return payload
-
+    """Legacy ESPN network source blocked until an approved source replacement."""
+    raise PermissionError(
+        "RIGHTS_HOLD: ESPN scoreboard API retrieval disabled. "
+        "Replace with a separately licensed feed before new forecasts."
+    )
 
 def extract(day_payloads: dict[str, bytes]) -> list[dict]:
     games = {}
