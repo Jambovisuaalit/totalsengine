@@ -1,4 +1,5 @@
 import copy
+import base64
 import json
 import unittest
 from io import BytesIO
@@ -30,9 +31,19 @@ class ProspectiveCaptureTests(unittest.TestCase):
                                               {'homeAway':'away','score':'105'}]}]}]}).encode()
             key=f'history_raw_{i}'
             self.blobs[key]=raw
+            ledger_raw=json.dumps({'schema':1,'source_game_id':gid,
+                'source_url':'https://provider.example/scoreboard',
+                'fetched_at_utc':'2026-11-05T21:59:00Z',
+                'raw_sha256':sha(raw),'raw_b64':base64.b64encode(raw).decode(),
+                'source_first_published_at_utc':None},sort_keys=True,separators=(',',':')).encode()
+            self.blobs[f'ledger_raw_{i}']=ledger_raw
             self.hist.append({'source_game_id':gid,'raw_artifact_key':key,
                 'raw_sha256':sha(raw),'fetched_at_utc':'2026-11-05T22:00:00Z',
-                'first_final_observed_at_utc':'2026-11-05T21:59:00Z',
+                'first_final_observed_at_utc':'2026-11-05T21:59:01Z',
+                'immutable_first_final_ref':{'bucket':'synthetic',
+                    'key':f'nba-history-first-final/{gid}/first.json',
+                    'version_id':'v1','sha256':sha(ledger_raw),
+                    'stored_at_server_utc':'2026-11-05T21:59:01Z'},
                 'immutable_archive_ref':{'bucket':'synthetic','key':f'history/{gid}',
                     'version_id':'v1','sha256':sha(raw),
                     'stored_at_server_utc':'2026-11-05T22:00:01Z'}})
@@ -170,6 +181,8 @@ class FakeArchive:
         return {'Body':BytesIO(self.objects[kw['Key']]['Body'])}
     def head_object(self, **kw):
         if kw['Key'] in self.history:
+            if kw['Key'].startswith('nba-history-first-final/'):
+                return {'LastModified':datetime(2026,11,5,21,59,1,tzinfo=timezone.utc)}
             return {'LastModified':datetime(2026,11,5,22,0,1,tzinfo=timezone.utc)}
         return {'LastModified':datetime(2026,11,6,3 if self.late else 1,0,2,tzinfo=timezone.utc)}
 
@@ -186,6 +199,8 @@ class ArchiveLifecycleTests(unittest.TestCase):
         history=json.loads(self.payload['history_evidence'])
         for item in history:
             client.history[item['immutable_archive_ref']['key']]=self.payload[item['raw_artifact_key']]
+            i=int(item['source_game_id'][1:])
+            client.history[item['immutable_first_final_ref']['key']]=self.payload[f'ledger_raw_{i}']
         with TemporaryDirectory() as temp, patch('nba_totals_research.rfc3161_timestamp.timestamp_digest',side_effect=self.fake_tsa):
             return archive_bundle(self.payload,workdir=temp,tsa_url='synthetic-test-only',
                 tsa_ca=Path('unused-test-ca'),tsa_signer=Path('unused-test-signer'),s3_client=client,
