@@ -1,0 +1,14 @@
+{
+  "nhl_game_id": "2026020258",
+  "game_date_local": "2026-11-05",
+  "commence_time_utc": "2026-11-06T00:00:00Z",
+  "home_team": "Columbus Blue Jackets",
+  "away_team": "Dallas Stars",
+  "nhl_gamecenter_url": "https://www.nhl.com/gamecenter/dal-vs-cbj/2026/11/05/2026020258",
+  "odds_provider": "the-odds-api",
+  "odds_event_id": null,
+  "odds_response_sha256": null,
+  "nhl_api_response_sha256": null,
+  "join_status": "HOLD_MISSING_PROVIDER_RESPONSE",
+  "evidence_note": "NHL Game Center ID and matchup verified from public page; original NHL API and Odds API JSON responses not acquired. No fabricated hashes or odds identifiers."
+}
