@@ -54,3 +54,21 @@ The opt-in `first_final_ledger.register_first_final` creates a **single** fixed 
 `verify_history_archive` additionally requires the versioned `immutable_first_final_ref`, checks server time is strictly no later than features cutoff, and re-verifies its original response matches the historical source bytes. Source provider licensing, first published timestamp and independently verified kickoff remain unavailable and cannot be inferred.
 
 **Deployment boundary:** No new external provider integration, IAM credentials, bucket or scheduled runner have been configured. Real S3 concurrency, readback, and retention checks must be independently tested before activation. A prospective forecast must be generated from the archived history versions, not re-created retrospectively from the latest scoreboard.
+
+## Real Object Lock acceptance procedure — NOT YET EXECUTED
+
+The opt-in module `nba_totals_research.worm_real_acceptance` uses **only synthetic bytes**. Before execution, confirm a user-owned, cost-approved S3 test bucket with versioning and Object Lock enabled, an approved AWS credential role, and the immutable 2-day test retention. The test attempts a version-specific delete; IAM must allow `s3:DeleteObjectVersion` on the test prefix for the denial to be attributable to COMPLIANCE. If the role lacks that permission, a denied delete does NOT independently prove the retention mechanism; record it as inconclusive.
+
+The test writes a unique synthetic key and cannot remove the winning version during retention. AWS S3 Object Lock protects versions, not key names; a normal unconditioned PutObject can create a *new version*, so application-level `IfNoneMatch="*"` is required for the first-observation ledger.
+
+Execute manually from an authorized environment, **only after explicit exact-bucket approval**:
+
+```bash
+python -m nba_totals_research.worm_real_acceptance \
+  --bucket YOUR_APPROVED_TEST_BUCKET \
+  --confirm-bucket YOUR_APPROVED_TEST_BUCKET \
+  --ack-immutable-write \
+  --retention-days 2
+```
+
+Collect original JSON stdout, AWS account/role ARN, request IDs / CloudTrail, bucket configuration, version ID, head LastModified, GetObjectRetention and read-back SHA-256. Confirm two concurrent writers yield one CREATED, one CONFLICT, and the winning object remains current. Confirm subsequent conditional PUT is refused. Confirm `DeleteObject(VersionId=...)` is denied and the exact version still reads identical bytes. The result does not prove source authenticity, an NBA model edge, nor real collector activation. Do not attempt to shorten retention or destroy protected versions. Do not change AWS permissions through this PR.
