@@ -24,7 +24,7 @@ class ProspectiveCaptureTests(unittest.TestCase):
         # Each selected history game keeps exact original ESPN response bytes.
         self.hist=[]
         for i in range(6):
-            gid=f'h{i}'
+            gid=str(1000+i)
             raw=json.dumps({'events':[{'id':gid,'date':'2026-10-25T02:00:00Z',
                 'status':{'type':{'completed':True}},
                 'competitions':[{'competitors':[{'homeAway':'home','score':'110'},
@@ -56,7 +56,7 @@ class ProspectiveCaptureTests(unittest.TestCase):
         self.pred=[dict(base,raw_artifact_key='prediction_raw',raw_sha256=sha(self.blobs['prediction_raw']),
                         prediction_created_at_utc='2026-11-06T00:59:58Z',features_as_of_utc='2026-11-05T23:00:00Z',
                         model_sha256=sha(self.blobs['model']),
-                        history_source_game_ids={'dal':['h0','h1','h2'],'sa':['h3','h4','h5']},p_win=.52,p_push=0,p_loss=.48)]
+                        history_source_game_ids={'dal':['1000','1001','1002'],'sa':['1003','1004','1005']},p_win=.52,p_push=0,p_loss=.48)]
         self.quotes=[dict(base,raw_artifact_key='quote_raw',raw_sha256=sha(self.blobs['quote_raw']),
                           fetched_at_utc='2026-11-06T00:59:59Z',market_last_update_utc='2026-11-06T00:59:50Z',
                           bookmaker_last_update_utc='2026-11-06T00:59:50Z',decimal_odds=1.95)]
@@ -199,7 +199,7 @@ class ArchiveLifecycleTests(unittest.TestCase):
         history=json.loads(self.payload['history_evidence'])
         for item in history:
             client.history[item['immutable_archive_ref']['key']]=self.payload[item['raw_artifact_key']]
-            i=int(item['source_game_id'][1:])
+            i=int(item['source_game_id'])-1000
             client.history[item['immutable_first_final_ref']['key']]=self.payload[f'ledger_raw_{i}']
         with TemporaryDirectory() as temp, patch('nba_totals_research.rfc3161_timestamp.timestamp_digest',side_effect=self.fake_tsa):
             return archive_bundle(self.payload,workdir=temp,tsa_url='synthetic-test-only',
