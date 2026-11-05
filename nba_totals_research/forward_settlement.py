@@ -103,7 +103,15 @@ def inspect_artifact(raw_zip: bytes, run: dict, *, artifact_name: str) -> list[d
         files = {}
         for info in archive.infolist():
             name = info.filename
-            if (info.is_dir() or name.startswith("/") or ".." in Path(name).parts
+            # GitHub upload-artifact can include a directory record. Accept
+            # only the known container directory, never arbitrary paths.
+            if (name == "source_snapshots/" and info.is_dir()
+                    and info.file_size == 0):
+                continue
+            unix_mode = (info.external_attr >> 16) & 0o170000
+            if (info.is_dir() or name.startswith("/") or "\\" in name
+                    or ".." in Path(name).parts
+                    or unix_mode not in (0, 0o100000)
                     or not (name in {"manifest.json", "predictions.jsonl"}
                             or re.fullmatch(r"source_snapshots/\d{4}-\d{2}-\d{2}\.json", name))
                     or info.file_size > 2_000_000):
