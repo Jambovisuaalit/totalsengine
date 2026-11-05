@@ -1,6 +1,7 @@
 """Mock tests cannot substitute for live AWS Object Lock smoke evidence."""
 import hashlib
 import unittest
+from unittest.mock import patch
 from datetime import datetime, timezone, timedelta
 from nba_totals_research.worm_synthetic_smoke import run_smoke, SYNTHETIC_PREFIX
 
@@ -30,6 +31,12 @@ class FakeS3:
         return {"Body":Body(b"tampered" if self.tamper else self.upload["Body"])}
 
 class SmokeTests(unittest.TestCase):
+    def setUp(self):
+        # Keep both injected smoke time and the adapter retention clock fixed.
+        # Otherwise the two-day fixture expires as the CI calendar advances.
+        clock = patch('nba_totals_research.forward_pipeline.datetime', wraps=datetime)
+        clock.start().now.return_value = NOW
+        self.addCleanup(clock.stop)
     def kwargs(self, client):
         return dict(client=client, bucket="totalsengine-test-bucket",
                     confirmed_bucket="totalsengine-test-bucket",acknowledge_immutable=True,
