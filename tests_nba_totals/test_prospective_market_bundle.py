@@ -74,6 +74,10 @@ class ProspectiveCaptureTests(unittest.TestCase):
         self.hist[0]['immutable_archive_ref']['sha256']=sha(self.blobs['history_raw_0'])
         with self.assertRaises(ValueError): self.run_capture()
 
+    def test_missing_first_final_ledger_blocks(self):
+        self.hist[0].pop('immutable_first_final_ref')
+        with self.assertRaises(ValueError): self.run_capture()
+
     def test_history_future_or_unarchived_blocks(self):
         self.hist[0]['fetched_at_utc']='2026-11-06T00:00:00Z'
         with self.assertRaises(ValueError): self.run_capture()
@@ -226,6 +230,17 @@ class ArchiveLifecycleTests(unittest.TestCase):
         client=FakeArchive(late=True)
         with self.assertRaises(ValueError):self.archive(client)
         self.assertFalse(any(x.endswith('/completion.json') for x in client.objects))
+    def test_first_final_ledger_remote_tampering_blocks_completion(self):
+        client=FakeArchive()
+        original=client.get_object
+        def tamper(**kw):
+            if kw['Key'].startswith('nba-history-first-final/'):
+                return {'Body':BytesIO(b'wrong first FINAL')}
+            return original(**kw)
+        client.get_object=tamper
+        with self.assertRaises(ValueError): self.archive(client)
+        self.assertFalse(any(x.endswith('/completion.json') for x in client.objects))
+
     def test_history_remote_tampering_blocks_completion(self):
         client=FakeArchive()
         # Set historical objects to wrong bytes after the fixture populates them.
