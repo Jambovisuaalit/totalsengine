@@ -1,0 +1,50 @@
+name: Polymarket US prospective quote receipt (manual research only)
+on:
+  workflow_dispatch:
+    inputs:
+      event_slug:
+        description: "Verified upcoming Polymarket US NBA event slug"
+        required: true
+        type: string
+      market_slug:
+        description: "Verified full-game totals market slug on that event"
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HALTED: "1"
+      PUBLICATION_ALLOWED: "false"
+      PYTHONPATH: "."
+    steps:
+      - name: Checkout exact workflow SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Preflight unit tests
+        run: python -m unittest qa.test_polymarket_live_capture -v
+      - name: Live pregame market snapshot and RFC3161 timestamp
+        shell: bash
+        env:
+          EVENT_SLUG: ${{ inputs.event_slug }}
+          MARKET_SLUG: ${{ inputs.market_slug }}
+        run: |
+          python -m nba_totals_research.polymarket_live_capture \
+            --event-slug "$EVENT_SLUG" \
+            --market-slug "$MARKET_SLUG" \
+            --out "$RUNNER_TEMP/polymarket-us-receipt"
+      - name: Preserve derived receipt and signed TSA response (no raw vendor payload)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: polymarket-research-${{ github.run_id }}
+          path: ${{ runner.temp }}/polymarket-us-receipt/
+          retention-days: 30
+          if-no-files-found: error
