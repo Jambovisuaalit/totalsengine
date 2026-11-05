@@ -35,3 +35,22 @@ A **Polymarket US** event was publicly listed for **PHI @ DET, Nov 4, 2026, 7 PM
 ## Scope and safe integration
 
 The new verifier is intentionally fail-closed when any required segment is missing. Keep it research-only until provenance and numeric validation tests are independently executed. Do not add quote data scraped after tipoff, declare ROI, increment the verified cohort, automatically merge this draft, or deploy.
+
+
+## Historical-price endpoint discovery — 2026-11-05
+
+Polymarket US official documentation **does** list `Get Price History` under `/api-reference/price-history/get-price-history`. The US public gateway exposes `GET https://gateway.polymarket.us/v1/price-history`, with a **market slug** passed as `symbol`. It returns **book-derived Yes/No display prices** (rather than the international Polymarket CLOB token price history). See:
+- https://docs.polymarket.us/llms.txt
+- https://docs.polymarket.us/api-reference/price-history/get-price-history
+- https://docs.polymarket.us/api-reference/markets/get-market-by-slug
+
+**Critical distinction:** A retrieved historical display-price point with a time preceding tipoff can support a *retrospective historical quoted-price comparison* if original source timestamp, resolution, market identity, source integrity and vendor history semantics are confirmed. It is **not equivalent** to independent proof that our own system observed the exact price live before tipoff, nor necessarily proof of full historical L2 size/liquidity. Do not mislabel history backfill as contemporaneously collected market snapshot. The existing `snapshot_proof_verified` gate cannot be satisfied merely by setting a Boolean on historical data.
+
+**Next retrieval attempt (not yet succeeded in this investigation):**
+1. Resolve the **Polymarket US** event via its official US event endpoint, enumerate its totals market slugs and check regulation vs overtime.
+2. Request a narrow window around **2026-11-04T23:00:00Z → 2026-11-05T00:00:00Z** for a verified 219.5 or 221.5 full-game totals market. Preserve the raw response and response metadata only once usage/retention rights are approved.
+3. Separately label `HISTORICAL_BACKFILL` versus `LIVE_CAPTURE`; verify timestamps are observation timestamps rather than merely bucket boundaries, and confirm whether longPrice is ask-derived / shortPrice bid-derived.
+4. Do not use any historical observation after `2026-11-05T00:00:00Z` as pre-tipoff.
+5. If API cannot be reached or origin documentation is incomplete, report `HISTORY_UNVERIFIED`, not an estimated odds number.
+
+**Execution limitation:** Public web discovery found the API but no successful response containing the specific historic market's original timestamps and bid/ask evidence was acquired; direct API invocation was inaccessible in the current execution environment. This preserves NO_GO.
