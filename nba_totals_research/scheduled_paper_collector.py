@@ -53,18 +53,11 @@ def team_code(value: str) -> str:
 
 
 def download_day(day: date) -> bytes:
-    url = ("https://site.api.espn.com/apis/site/v2/sports/"
-           f"basketball/nba/scoreboard?dates={day:%Y%m%d}&limit=100")
-    req = Request(url, headers={"Accept": "application/json",
-                 "User-Agent": "TotalsEngineResearch/1.0"}, method="GET")
-    with urlopen(req, timeout=15) as response:
-        if response.status != 200:
-            raise ValueError("Source HTTP error")
-        payload = response.read(2_000_001)
-        if len(payload) > 2_000_000:
-            raise ValueError("Source response too large")
-    return payload
-
+    """Legacy ESPN network source blocked until an approved source replacement."""
+    raise PermissionError(
+        "RIGHTS_HOLD: ESPN scoreboard API retrieval disabled. "
+        "Replace with a separately licensed feed before new forecasts."
+    )
 
 def extract(day_payloads: dict[str, bytes]) -> list[dict]:
     games = {}
@@ -194,14 +187,11 @@ def run(output_dir: Path, *, now: datetime | None = None,
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
-    if os.environ.get("HALTED") != "1" or os.environ.get("PUBLICATION_ALLOWED") != "false":
-        raise SystemExit("Unsafe environment: HALTED=1 and PUBLICATION_ALLOWED=false required")
-    report = run(args.output)
-    print(json.dumps({k: v for k, v in report.items() if k != "source_sha256_by_day"},
-                     sort_keys=True))
+    """Legacy ESPN collector is disabled for any new CLI research run."""
+    raise SystemExit(
+        "RIGHTS_HOLD: no new ESPN forecasts until a separately licensed, "
+        "time-proven source adapter is approved."
+    )
 
 
 if __name__ == "__main__":

@@ -12,6 +12,12 @@ FILES = [
 ]
 
 class TestWorkflowSourceIdentity(unittest.TestCase):
+    def test_legacy_espn_source_fails_before_http_request(self):
+        from datetime import date
+        from nba_totals_research.scheduled_paper_collector import download_day
+        with self.assertRaisesRegex(PermissionError, "RIGHTS_HOLD"):
+            download_day(date(2026, 11, 5))
+
     def test_research_jobs_use_triggering_main_sha(self):
         for name in FILES:
             with self.subTest(workflow=name):
@@ -23,7 +29,12 @@ class TestWorkflowSourceIdentity(unittest.TestCase):
                 self.assertIn('HALTED: "1"', content)
                 self.assertIn('PUBLICATION_ALLOWED: "false"', content)
                 self.assertIn("workflow_dispatch:", content)
-                self.assertIn("schedule:", content)
+                if name.endswith("nba-forward-collection.yml"):
+                    # Rights hold: no scheduled or manual collection until licensed source.
+                    self.assertNotIn("schedule:", content)
+                    self.assertIn("if: ${{ false }}", content)
+                else:
+                    self.assertIn("schedule:", content)
 
 if __name__ == "__main__":
     unittest.main()
