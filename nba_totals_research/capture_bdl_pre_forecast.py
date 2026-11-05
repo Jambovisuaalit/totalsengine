@@ -95,6 +95,11 @@ def main():
     if not key:
         p.error("Missing BALLDONTLIE_API_KEY. No source access attempted.")
     policy = json.loads(args.rights_policy.read_bytes())
+    # Public GitHub artifact downloads can disclose raw source data.
+    # Never persist source bytes to public Actions artifacts on a generic
+    # retention license; require explicit public redistribution approval.
+    if policy.get("allow_public_artifact_raw") is not True:
+        p.error("Public artifact storage is not licensed/approved; fail closed")
     # Fail before accessing API if the local policy has no valid approval.
     assert_rights(policy, source_id=SOURCE_ID, endpoint_id=ENDPOINT_ID,
                   captured_at=datetime.now(timezone.utc))
