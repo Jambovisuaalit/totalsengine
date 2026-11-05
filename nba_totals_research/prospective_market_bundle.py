@@ -26,7 +26,7 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def prepare_bundle(*, event, predictions, quotes, blobs, now, max_quote_age_seconds=120):
+def prepare_bundle(*, event, predictions, quotes, blobs, now, history_evidence=None, max_quote_age_seconds=120):
     """Pure preparation. Does not attest time, place bets, or admit evaluation."""
     now = utc(now)
     if not isinstance(max_quote_age_seconds, int) or not 1 <= max_quote_age_seconds <= 300:
@@ -88,15 +88,22 @@ def prepare_bundle(*, event, predictions, quotes, blobs, now, max_quote_age_seco
                     raise ValueError('Stale bookmaker timestamp')
                 if not math.isfinite(row['decimal_odds']) or row['decimal_odds'] <= 1:
                     raise ValueError('Invalid odds')
+    # Historical source bytes and their event-level lineage are mandatory.
+    # This checks local consistency only; external archive/provider authenticity
+    # and true first publication must be verified separately.
+    from .history_evidence import verify_history
+    history_check = verify_history(predictions, history_evidence, blobs, now)
     payloads = dict(blobs)
-    payloads.update(event=canonical(event), predictions=canonical(predictions), quotes=canonical(quotes))
+    payloads.update(event=canonical(event), predictions=canonical(predictions), quotes=canonical(quotes), history_evidence=canonical(history_evidence))
     # A name collision must not silently discard an original artifact.
-    if set(blobs) & {'event', 'predictions', 'quotes', 'bundle_manifest'}:
+    if set(blobs) & {'event', 'predictions', 'quotes', 'history_evidence', 'bundle_manifest'}:
         raise ValueError('Reserved artifact key')
     manifest = {'schema': 1, 'game_id': game, 'captured_at_host_utc': now.isoformat(),
                 'scheduled_start_utc': cutoff.isoformat(), 'actual_start_utc': None,
                 'artifacts': {k: {'sha256': sha(v), 'size': len(v)} for k,v in sorted(payloads.items())},
                 'n_predictions': len(predictions), 'n_quotes': len(quotes),
+                'historical_games': history_check['history_count'],
+                'source_availability_verified': False,
                 'evaluation_eligible': False, 'publication_allowed': False,
                 'state': 'LOCAL_ONLY_NOT_TIMESTAMPED_NOT_IMMUTABLE'}
     payloads['bundle_manifest'] = canonical(manifest)
