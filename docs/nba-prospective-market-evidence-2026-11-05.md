@@ -46,3 +46,11 @@ prediction_created_at_utc < actual_start_utc    # only after authoritative kicko
 ```
 
 This is **proof of possession at archived server time**, not proof of ESPN's first publication time, upstream licensing, or source authenticity. Unverified provider metadata, event mapping, actual kickoff, feature derivation, and OOS validation remain HOLD. Baseline source adapters must expose genuine `history_source_game_ids` and retain selected original bytes; no reconstruction of the November 3–4 inputs is allowed. Collector activation is not part of this PR. Synthetic CI does not certify a real remote Object Lock write.
+
+## First-FINAL atomic registry
+
+The opt-in `first_final_ledger.register_first_final` creates a **single** fixed key per ESPN event: `nba-history-first-final/<numeric ESPN game ID>/first.json`. The immutable COMPLIANCE object contains the exact original ESPN response as base64 plus its SHA-256, the collector-supplied fetch time and source URL. The winning object version, independently read-back S3 `LastModified`, retention and raw bytes are verified. A `PreconditionFailed` from create-only upload resolves the existing winner instead of replacing it; unrelated storage failures are propagated. This eliminates a *local overwrite* race but does not prove cross-provider publication time or configure production scheduling.
+
+`verify_history_archive` additionally requires the versioned `immutable_first_final_ref`, checks server time is strictly no later than features cutoff, and re-verifies its original response matches the historical source bytes. Source provider licensing, first published timestamp and independently verified kickoff remain unavailable and cannot be inferred.
+
+**Deployment boundary:** No new external provider integration, IAM credentials, bucket or scheduled runner have been configured. Real S3 concurrency, readback, and retention checks must be independently tested before activation. A prospective forecast must be generated from the archived history versions, not re-created retrospectively from the latest scoreboard.
