@@ -1,0 +1,81 @@
+"""Historical feature provenance for prospective NBA forecast bundles.
+
+A local row cannot prove when ESPN first published a result. This module
+validates exact source bytes and chronology; independent archive/provider
+authentication remains a separate admission gate.
+"""
+import json
+from datetime import timedelta
+from .prospective_market_bundle import utc, sha
+
+
+def verify_history(predictions, history, blobs, now):
+    if not isinstance(history, list) or not history:
+        raise ValueError("Historical evidence missing")
+    used = {}
+    for row in history:
+        event_id = str(row["source_game_id"])
+        if event_id in used:
+            raise ValueError("Duplicate historical event evidence")
+        key = row["raw_artifact_key"]
+        if key not in blobs or sha(blobs[key]) != row["raw_sha256"]:
+            raise ValueError("Missing or altered original history response")
+        observed = utc(row["fetched_at_utc"])
+        first_final = utc(row["first_final_observed_at_utc"])
+        if not first_final <= observed <= utc(now):
+            raise ValueError("Invalid FINAL observation chronology")
+        ref = row.get("immutable_archive_ref")
+        if not isinstance(ref, dict) or not all(ref.get(k) for k in
+                ("bucket", "key", "version_id", "sha256", "stored_at_server_utc")):
+            raise ValueError("Missing version-specific archive reference")
+        if ref["sha256"] != row["raw_sha256"]:
+            raise ValueError("Archived history hash mismatch")
+        if not utc(ref["stored_at_server_utc"]) <= observed:
+            raise ValueError("Archive receipt newer than observation")
+        doc = json.loads(blobs[key])
+        events = doc.get("events")
+        if not isinstance(events, list):
+            raise ValueError("Invalid ESPN history response")
+        matches = [x for x in events if str(x.get("id")) == event_id]
+        if len(matches) != 1 or matches[0].get("status", {}).get("type", {}).get("completed") is not True:
+            raise ValueError("Historical event not FINAL in original bytes")
+        comps = matches[0].get("competitions", [])
+        if len(comps) != 1 or len(comps[0].get("competitors", [])) != 2:
+            raise ValueError("Invalid historical competitors")
+        scores = [c.get("score") for c in comps[0]["competitors"]]
+        if any(not str(s).isdigit() for s in scores):
+            raise ValueError("Missing historical final scores")
+        if str(row["source_game_id"]) != event_id:
+            raise ValueError("Inconsistent history identifier")
+        used[event_id] = row
+    for prediction in predictions:
+        lineage = prediction.get("history_source_game_ids")
+        if not isinstance(lineage, dict) or len(lineage) != 2:
+            raise ValueError("Two team history lists required")
+        feature_at = utc(prediction["features_as_of_utc"])
+        predicted_at = utc(prediction["prediction_created_at_utc"])
+        if not feature_at <= predicted_at:
+            raise ValueError("Feature cutoff after forecast")
+        for team, game_ids in lineage.items():
+            if not team or not isinstance(game_ids, list) or not 3 <= len(game_ids) <= 10:
+                raise ValueError("Baseline requires 3..10 games per team")
+            if len(set(str(x) for x in game_ids)) != len(game_ids):
+                raise ValueError("Duplicate history game for team")
+            for event_id in game_ids:
+                evidence = used.get(str(event_id))
+                if evidence is None:
+                    raise ValueError("Selected historical game missing evidence")
+                observed = utc(evidence["fetched_at_utc"])
+                first_final = utc(evidence["first_final_observed_at_utc"])
+                if not first_final <= observed <= feature_at:
+                    raise ValueError("Historical result not observed before features cutoff")
+                # Same 48h scheduling guard as the original collector.
+                event = next(x for x in json.loads(blobs[evidence["raw_artifact_key"]])["events"]
+                             if str(x["id"]) == str(event_id))
+                if utc(event["date"]) + timedelta(days=2) > feature_at:
+                    raise ValueError("Historical game inside conservative 48h exclusion")
+    referenced = {str(gid) for p in predictions
+                  for ids in p["history_source_game_ids"].values() for gid in ids}
+    if referenced != set(used):
+        raise ValueError("Unreferenced or missing historical evidence")
+    return {"history_count": len(used), "source_availability_verified": False}
