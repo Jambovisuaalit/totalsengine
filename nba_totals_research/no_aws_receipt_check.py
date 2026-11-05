@@ -27,15 +27,26 @@ def validate_receipt(manifest: Path, verification: Path, *, commit_sha: str) -> 
         if not result.get("verifiedTimestamps"):
             continue
         # GitHub CLI has already verified tlog inclusion/SET and trust root.
-        bundle = row.get("attestation", {})
-        material = bundle.get("verificationMaterial", {}) if isinstance(bundle, dict) else {}
-        tlog = material.get("tlogEntries", [])
-        if not isinstance(tlog, list) or not tlog:
+        # gh CLI's successful verification already checks the Sigstore
+        # signature and authenticated transparency-log timestamp. JSON bundle
+        # versions differ: some nest verificationMaterial under "bundle".
+        # Require a cryptographically verified tlog timestamp, not merely a
+        # caller-supplied timestamp or an untrusted manifest field.
+        witnessed = result.get("verifiedTimestamps", [])
+        if not any(isinstance(t, dict) and
+                   "log" in str(t.get("type", "")).lower()
+                   for t in witnessed):
             continue
-        if not any(isinstance(t, dict) and t.get("logIndex") is not None and
-                   (t.get("inclusionProof") or t.get("inclusionPromise"))
-                   for t in tlog):
-            continue
+        wrapper = row.get("attestation", {})
+        if isinstance(wrapper, dict):
+            bundle = wrapper.get("bundle", wrapper)
+            material = bundle.get("verificationMaterial", {}) if isinstance(bundle, dict) else {}
+            tlog = material.get("tlogEntries", [])
+            # When present, raw inclusion metadata should not contradict the
+            # trusted CLI result. Some Gh CLI versions omit the raw bundle.
+            if tlog and not any(isinstance(t, dict) and
+                                (t.get("logIndex") is not None) for t in tlog):
+                continue
         if not isinstance(commit_sha, str) or len(commit_sha) != 40:
             raise ValueError("Missing pinned commit SHA")
         return {
