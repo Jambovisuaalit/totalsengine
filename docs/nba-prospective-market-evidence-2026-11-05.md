@@ -61,7 +61,7 @@ The opt-in module `nba_totals_research.worm_real_acceptance` uses **only synthet
 
 The test writes a unique synthetic key and cannot remove the winning version during retention. AWS S3 Object Lock protects versions, not key names; a normal unconditioned PutObject can create a *new version*, so application-level `IfNoneMatch="*"` is required for the first-observation ledger.
 
-Execute manually from an authorized environment, **only after explicit exact-bucket approval**:
+Execute manually from an authorized environment, **only after explicit exact-bucket approval**. Install `boto3` (and its `botocore` dependency) in the approved Python environment; configure a least-privilege AWS role outside this repository. Do not commit credentials. Confirm the role is intentionally permitted to attempt version deletion in the synthetic test prefix so a denied deletion meaningfully tests retention rather than missing IAM permissions:
 
 ```bash
 python -m nba_totals_research.worm_real_acceptance \
