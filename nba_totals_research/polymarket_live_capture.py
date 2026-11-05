@@ -84,8 +84,14 @@ def capture(event_slug: str, market_slug: str, out: Path, *, clock=None) -> dict
     preflight(tipoff=tipoff, now=t1)
     if t1 < t0:
         raise ValueError("host clock moved backwards")
-    if not isinstance(book, dict) or not book:
-        raise ValueError("empty BBO")
+    market_data = book.get("marketData") if isinstance(book, dict) else None
+    if (not isinstance(market_data, dict) or market_data.get("marketSlug") != market_slug
+        or market_data.get("state") != "MARKET_STATE_OPEN"):
+        raise ValueError("invalid or closed market BBO")
+    bid = float(market_data["bestBid"]["value"])
+    ask = float(market_data["bestAsk"]["value"])
+    if not 0 < bid <= ask < 1:
+        raise ValueError("invalid BBO")
     receipt = {
         "schema": 1, "class": "LIVE_CAPTURE_PENDING_INDEPENDENT_ATTESTATION",
         "venue": "polymarket.us", "event_slug": event_slug, "event_id": str(event.get("id")),
