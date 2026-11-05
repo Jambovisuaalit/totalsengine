@@ -1,3 +1,6 @@
+> Scope: **RESEARCH CONTRACT / prototype scope**. Requirements apply to the named component. Old current-state, dependency and deployment observations are superseded.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # Evidence Collector v2 — transactional final gate (OFFLINE ONLY)
 
 The `atomic_gate_v2.py` component is an **SQLite dry-run audit**, not a

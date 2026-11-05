@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { filterAnalysisEdges } from "@/lib/analysis-filter.mjs";
+import { getSportFromLeague } from "@/lib/analysis-helpers";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useEdgesPublic, EdgeFilters } from "@/hooks/useEdgesPublic";
@@ -12,13 +14,8 @@ export default function AnalysisIndex() {
   const [filters, setFilters] = useState<EdgeFilters>({});
   const { data: edges = [], isLoading, error } = useEdgesPublic();
 
-  // Apply client-side filtering for sport (since it's derived from league)
-  const filteredEdges = edges.filter((edge) => {
-    if (filters.league && edge.league !== filters.league) return false;
-    if (filters.market && edge.market !== filters.market) return false;
-    // Date filtering is done server-side
-    return true;
-  });
+  // Keep option lists stable while applying every selected filter locally.
+  const filteredEdges = filterAnalysisEdges(edges, filters, getSportFromLeague);
 
   return (
     <>

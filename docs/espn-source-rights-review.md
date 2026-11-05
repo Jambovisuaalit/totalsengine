@@ -1,3 +1,6 @@
+> Scope: **DATED SNAPSHOT / historical observation**. Counts, execution status and deployment observations apply only to the stated snapshot.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # ESPN read-only research source: rights and evidence status
 
 Status: **RIGHTS REVIEW REQUIRED — NO COMMERCIAL USE APPROVED**.

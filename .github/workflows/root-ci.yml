@@ -22,8 +22,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - run: npm ci --prefix qa
+      - run: ./qa/node_modules/.bin/playwright install --with-deps chromium
+      - run: node qa/review-smoke.cjs
   research:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

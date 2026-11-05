@@ -1,5 +1,8 @@
 # TotalsEngine
 
+**Current status and release scope:** [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md).
+**Document scopes:** [docs/DOCUMENT_INDEX.md](docs/DOCUMENT_INDEX.md).
+
 **TotalsEngine** is an NBA game-totals research and analysis product. Its intended core workflow is **Analyze Game → Review Prediction → Evaluate Market Edge**. Forecasting, accuracy validation and bookmaker-market evaluation are separate evidence gates. There is no verified prospective performance or live betting-edge claim.
 
 ## Repository layout
@@ -9,7 +12,7 @@
 | `src/` | React + TypeScript + Vite web app (currently contains legacy DoctoreAI UI/content requiring product migration) |
 | `index.html` | Single valid Vite entry document |
 | `public/research-preview.html` | Archived standalone TotalsEngine concept landing; illustrative, not a live data product |
-| `nba_totals_research/` | **Independent Python offline evidence/verification module**, not imported by or deployed as the Vite app |
+| `nba_totals_research/` | **Independent Python research module**: offline evidence contracts plus scheduled paper collection/settlement; not imported by the Vite app |
 | `tests_nba_totals/` | Python research tests |
 | `tests/` | Root configuration/CI tests |
 | `docs/` | Research notes and evidence protocol |
@@ -27,6 +30,7 @@ cp .env.example .env.local
 # Set valid public Supabase URL and publishable key in .env.local
 npm run dev
 npm run lint
+npm run typecheck
 npm test
 npm run build
 ```
@@ -43,7 +47,7 @@ The root `vercel.json` configures the Vite build to `dist/` and sends SPA routes
 
 ## Research boundary
 
-`nba_totals_research/` is a standalone Python module for offline NBA totals evidence, audit gates and synthetic paper evaluation. It is **not** a FastAPI backend, not called from the browser, not packaged into the Vite bundle, and not evidence of live forecasts. Its dependencies and tests are managed separately.
+`nba_totals_research/` is a standalone Python research module: offline evidence/audit primitives and separate network-backed provisional collection/settlement workflows. It is **not** a FastAPI backend, not called from the browser, not packaged into the Vite bundle, and its presence alone is not proof of a successful deployed forecast run. Its dependencies and tests are managed separately.
 
 ```bash
 python3 -m pip install "cryptography==46.0.4"
@@ -54,11 +58,18 @@ Do not run research scripts with real provider feeds or publish calculated marke
 
 ## CI
 
-`.github/workflows/root-ci.yml` runs npm clean install, environment checks, ESLint, Node tests and Vite production build. A separate Python test job validates the isolated research module. Existing specialized research and visual-QA workflows remain independent. Any pre-existing lint errors will block CI instead of being silently suppressed.
+`.github/workflows/root-ci.yml` runs npm clean install, environment checks, ESLint, explicit TypeScript check, Node tests and Vite production build. A separate Python test job validates the isolated research module. Existing specialized research and visual-QA workflows remain independent. Any pre-existing lint errors will block CI instead of being silently suppressed.
 
 ## Status
 
-- Web repository: mixed legacy UI, **not yet product-migrated**
-- Root configuration/verification: implemented in this PR; check CI run before merge
+- Web release: explicit TotalsEngine research routes; legacy UI retained in source but unmounted
+- Root configuration/verification: build and regression checks implemented; require same-commit CI and staging smoke before release
 - Historical accuracy: retrospective research only; independently evidenced prospective results **not yet available**
 - Market comparison and production betting: **NO-GO** pending genuine timestamped odds and forward evidence.
+
+## Telegram webhook deployment
+
+Outgoing commands require a durable shared replay store. See
+[TELEGRAM_REPLAY_PROTECTION.md](docs/TELEGRAM_REPLAY_PROTECTION.md) for server-only
+environment variables, staging checks and uncertain-send handling. This branch
+does not provision that store or activate a production deployment.

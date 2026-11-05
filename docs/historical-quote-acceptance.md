@@ -1,3 +1,6 @@
+> Scope: **RESEARCH CONTRACT / prototype scope**. Requirements apply to the named component. Old current-state, dependency and deployment observations are superseded.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # Historical quote acceptance gates (research only)
 
 - **CI:** run `python -m unittest discover -s tests_nba_totals -p 'test_*.py' -v`. No production signal release.

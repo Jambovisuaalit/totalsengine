@@ -1,3 +1,6 @@
+> Scope: **RESEARCH CONTRACT / prototype scope**. Requirements apply to the named component. Old current-state, dependency and deployment observations are superseded.
+> Current operational status, storage behavior and release gates: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 # Publication release KPI — 100% evidence required (NO-GO v1)
 
 **Target:** 100% of *published* NBA totals signals must have all four

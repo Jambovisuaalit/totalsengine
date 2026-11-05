@@ -1,6 +1,7 @@
+import { TestUpdateStore } from "./helpers/update-store.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { processTelegramUpdate, commandResponse } from '../server/telegram-webhook.mjs';
+import { processTelegramUpdate as processRawUpdate, commandResponse } from '../server/telegram-webhook.mjs';
 const secret='test_secret', token='test_token';
 const allowed='-1001234567890', other='-1009999999999';
 function update(chatId, text, type='supergroup') {
@@ -50,3 +51,7 @@ test('invalid allowlist values cannot authorize group responses',async()=>{
   assert.equal(sent.length,0);
  }
 });
+
+function processTelegramUpdate(request, options) {
+ return processRawUpdate(request, { updateStore: new TestUpdateStore(), ...options });
+}
