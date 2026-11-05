@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "review_status": "PENDING",
+  "source_id": "balldontlie-nba",
+  "endpoint_id": "games-v1",
+  "allow_capture": false,
+  "allow_raw_retention": false,
+  "allow_sigstore_digest": false,
+  "review_reference": "https://www.balldontlie.io/terms.html#section-6",
+  "reviewed_by": null,
+  "valid_from_utc": "2026-11-05T00:00:00Z",
+  "valid_until_utc": "2027-11-05T00:00:00Z",
+  "notes": "Public BDL terms dated 2026-10-20 permit caching, archival, analytics and lawful commercial uses of data lawfully accessed. They do not clear underlying third-party rights. API key and service-tier authorization still required. PENDING until scoped rights/security review."
+}
