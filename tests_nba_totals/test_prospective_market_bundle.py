@@ -154,18 +154,23 @@ class ProspectiveCaptureTests(unittest.TestCase):
 
 class FakeArchive:
     def __init__(self, fail_at=None, late=False):
-        self.objects={};self.fail_at=fail_at;self.late=late
+        self.objects={};self.history={};self.fail_at=fail_at;self.late=late
     def put_object(self, **kw):
         if len(self.objects)==self.fail_at: raise OSError('storage unavailable')
         if kw['Key'] in self.objects: raise ValueError('create only')
         self.objects[kw['Key']]=kw
         return {'VersionId':'v1'}
     def get_object_retention(self, **kw):
+        if kw['Key'] in self.history:
+            return {'Retention':{'Mode':'COMPLIANCE','RetainUntilDate':datetime(2030,1,1,tzinfo=timezone.utc)}}
         obj=self.objects[kw['Key']]
         return {'Retention':{'Mode':obj['ObjectLockMode'],'RetainUntilDate':obj['ObjectLockRetainUntilDate']}}
     def get_object(self, **kw):
+        if kw['Key'] in self.history: return {'Body':BytesIO(self.history[kw['Key']])}
         return {'Body':BytesIO(self.objects[kw['Key']]['Body'])}
     def head_object(self, **kw):
+        if kw['Key'] in self.history:
+            return {'LastModified':datetime(2026,11,5,22,0,1,tzinfo=timezone.utc)}
         return {'LastModified':datetime(2026,11,6,3 if self.late else 1,0,2,tzinfo=timezone.utc)}
 
 
@@ -178,6 +183,9 @@ class ArchiveLifecycleTests(unittest.TestCase):
         (directory/'timestamp-audit.json').write_text(json.dumps({'timestamp_response_text':'Time stamp: Nov  6 01:00:01 2026 GMT'}))
         return {'rfc3161_verified':True,'raw_sha256':digest}
     def archive(self, client):
+        history=json.loads(self.payload['history_evidence'])
+        for item in history:
+            client.history[item['immutable_archive_ref']['key']]=self.payload[item['raw_artifact_key']]
         with TemporaryDirectory() as temp, patch('nba_totals_research.rfc3161_timestamp.timestamp_digest',side_effect=self.fake_tsa):
             return archive_bundle(self.payload,workdir=temp,tsa_url='synthetic-test-only',
                 tsa_ca=Path('unused-test-ca'),tsa_signer=Path('unused-test-signer'),s3_client=client,
@@ -203,6 +211,18 @@ class ArchiveLifecycleTests(unittest.TestCase):
         client=FakeArchive(late=True)
         with self.assertRaises(ValueError):self.archive(client)
         self.assertFalse(any(x.endswith('/completion.json') for x in client.objects))
+    def test_history_remote_tampering_blocks_completion(self):
+        client=FakeArchive()
+        # Set historical objects to wrong bytes after the fixture populates them.
+        original=client.get_object
+        def tamper(**kw):
+            if kw['Key'].startswith('history/'):
+                return {'Body':BytesIO(b'wrong')}
+            return original(**kw)
+        client.get_object=tamper
+        with self.assertRaises(ValueError): self.archive(client)
+        self.assertFalse(any(x.endswith('/completion.json') for x in client.objects))
+
     def test_wrong_tsa_digest_refused(self):
         original=self.fake_tsa
         def wrong(*args,**kwargs):
