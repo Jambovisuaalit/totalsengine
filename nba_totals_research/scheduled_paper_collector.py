@@ -194,6 +194,13 @@ def run(output_dir: Path, *, now: datetime | None = None,
 
 
 def main() -> None:
+    # DEPRECATED for new prospective runs: ESPN API rights and historical
+    # source publication time are not authenticated. Existing research files
+    # are preserved; do not fetch new ESPN forecasts from this CLI.
+    raise SystemExit(
+        "RIGHTS_HOLD: ESPN research collector disabled for new runs. "
+        "Use only a separately licensed and verified source adapter."
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
