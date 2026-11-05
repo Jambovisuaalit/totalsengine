@@ -79,3 +79,35 @@ def verify_history(predictions, history, blobs, now):
     if referenced != set(used):
         raise ValueError("Unreferenced or missing historical evidence")
     return {"history_count": len(used), "source_availability_verified": False}
+
+
+def verify_history_archive(history, blobs, predictions, client, now):
+    """Read historical object versions back before issuing completion.
+
+    Server LastModified provides a verifiable latest-availability bound,
+    not ESPN's original publication time or a proof of the first ever FINAL.
+    """
+    cutoffs = {}
+    for pred in predictions:
+        for ids in pred["history_source_game_ids"].values():
+            for gid in ids:
+                cutoffs[str(gid)] = min(cutoffs.get(str(gid), utc(pred["features_as_of_utc"])),
+                                        utc(pred["features_as_of_utc"]))
+    for row in history:
+        gid = str(row["source_game_id"])
+        ref = row["immutable_archive_ref"]
+        kwargs = {"Bucket": ref["bucket"], "Key": ref["key"], "VersionId": ref["version_id"]}
+        head = client.head_object(**kwargs)
+        stored = utc(head["LastModified"])
+        # Caller-provided receipt must match independently obtained server metadata.
+        if stored != utc(ref["stored_at_server_utc"]):
+            raise ValueError("Historical archive timestamp mismatch")
+        if not utc(row["fetched_at_utc"]) <= stored <= cutoffs[gid]:
+            raise ValueError("Historical source archived after feature cutoff")
+        retention = client.get_object_retention(**kwargs)["Retention"]
+        if retention.get("Mode") != "COMPLIANCE" or utc(retention["RetainUntilDate"]) <= utc(now):
+            raise ValueError("Historical immutable retention missing or expired")
+        actual = client.get_object(**kwargs)["Body"].read()
+        if actual != blobs[row["raw_artifact_key"]] or sha(actual) != ref["sha256"]:
+            raise ValueError("Historical version bytes differ from source")
+    return False  # Source provider first-publication availability remains unverified.
