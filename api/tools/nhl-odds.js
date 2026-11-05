@@ -28,7 +28,7 @@ export async function fetchNhlOdds({ event_id } = {}) {
   for (const key of ["x-requests-remaining", "x-requests-used", "x-requests-last"]) {
     const value = response.headers.get(key);
     if (value !== null) {
-      if (!/^\\d+$/.test(value)) throw new Error(`invalid provider quota header: ${key}`);
+      if (!/^\d+$/.test(value)) throw new Error(`invalid provider quota header: ${key}`);
       quota[key.replace("x-requests-", "")] = Number(value);
     }
   }
