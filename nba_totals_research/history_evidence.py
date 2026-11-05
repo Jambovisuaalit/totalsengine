@@ -30,8 +30,8 @@ def verify_history(predictions, history, blobs, now):
             raise ValueError("Missing version-specific archive reference")
         if ref["sha256"] != row["raw_sha256"]:
             raise ValueError("Archived history hash mismatch")
-        if not utc(ref["stored_at_server_utc"]) <= observed:
-            raise ValueError("Archive receipt newer than observation")
+        if not observed <= utc(ref["stored_at_server_utc"]) <= utc(now):
+            raise ValueError("Archive receipt before fetch or after capture")
         doc = json.loads(blobs[key])
         events = doc.get("events")
         if not isinstance(events, list):
