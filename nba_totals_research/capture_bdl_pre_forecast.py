@@ -24,6 +24,23 @@ def capture(*, day: str, game_id: str, policy: dict, api_key: str,
                            **({"opener": opener} if opener is not None else {}))
     assert_rights(policy, source_id=SOURCE_ID, endpoint_id=ENDPOINT_ID,
                   captured_at=captured.fetched_at_utc)
+    if game_id == "auto":
+        upcoming = []
+        for candidate in captured.games:
+            if not candidate.get("datetime"):
+                continue
+            try:
+                tipoff = utc(candidate["datetime"])
+            except (ValueError, TypeError):
+                continue
+            if tipoff <= utc(captured.received_at_utc):
+                continue
+            _, candidate_state = select_event(captured, str(candidate["id"]))
+            if candidate_state == "PRE_GAME":
+                upcoming.append((tipoff, str(candidate["id"])))
+        if not upcoming:
+            raise ValueError("No source-confirmed PRE_GAME events to capture")
+        game_id = min(upcoming)[1]
     game, state = select_event(captured, game_id)
     if state != "PRE_GAME":
         raise ValueError("Actual source does not prove PRE_GAME; no prospective capture")
@@ -70,7 +87,7 @@ def capture(*, day: str, game_id: str, policy: dict, api_key: str,
 def main():
     p = argparse.ArgumentParser(description="Approved-source only; pre-forecast capture")
     p.add_argument("--day", required=True)
-    p.add_argument("--game-id", required=True)
+    p.add_argument("--game-id", default="auto")
     p.add_argument("--rights-policy", type=Path, required=True)
     p.add_argument("--out", type=Path, required=True)
     args = p.parse_args()
