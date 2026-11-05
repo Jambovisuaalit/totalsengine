@@ -40,7 +40,14 @@ class ReceiptChecks(unittest.TestCase):
 
     def test_reject_missing_transparency_log(self):
         self.record[0]["attestation"]["verificationMaterial"]["tlogEntries"] = []
+        self.record[0]["verificationResult"]["verifiedTimestamps"] = [{"type": "TSA"}]
         with self.assertRaises(ValueError): self.check()
+
+    def test_nested_sigstore_bundle_receipt(self):
+        self.record[0]["attestation"] = {
+            "bundle": self.record[0]["attestation"]
+        }
+        self.assertEqual(self.check()["verification_status"], "PASS_SYNTHETIC_ONLY")
 
     def test_reject_unsigned_timestamp(self):
         self.record[0]["verificationResult"]["verifiedTimestamps"] = []
