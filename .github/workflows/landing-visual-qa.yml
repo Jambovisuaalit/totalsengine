@@ -2,9 +2,9 @@ name: Landing visual QA
 on:
   push:
     branches: [landing/nba-totals]
-    paths: ['index.html', 'styles.css', 'app.js', 'qa/**', '.github/workflows/landing-visual-qa.yml']
+    paths: ['index.html', 'styles.css', 'app.js', 'public/**', 'qa/**', '.github/workflows/landing-visual-qa.yml']
   pull_request:
-    paths: ['index.html', 'styles.css', 'app.js', 'qa/**', '.github/workflows/landing-visual-qa.yml']
+    paths: ['index.html', 'styles.css', 'app.js', 'public/**', 'qa/**', '.github/workflows/landing-visual-qa.yml']
 permissions:
   contents: read
 jobs:
@@ -22,15 +22,15 @@ jobs:
         run: cd qa && npx playwright install --with-deps chromium
       - name: Start static server
         run: |
-          python3 -m http.server 8080 --bind 127.0.0.1 > /tmp/totals-landing-http.log 2>&1 &
+          python3 -m http.server 8080 --directory public --bind 127.0.0.1 > /tmp/totals-landing-http.log 2>&1 &
           for i in $(seq 1 20); do
-            if curl -fsS http://127.0.0.1:8080/ -o /dev/null; then exit 0; fi
+            if curl -fsS http://127.0.0.1:8080/research-preview.html -o /dev/null; then exit 0; fi
             sleep 1
           done
           exit 1
       - name: Test layouts and interactions
         env:
-          LANDING_BASE_URL: http://127.0.0.1:8080/public/research-preview.html
+          LANDING_BASE_URL: http://127.0.0.1:8080/research-preview.html
         run: npm --prefix qa test
       - name: Upload screenshots and QA evidence
         if: always()

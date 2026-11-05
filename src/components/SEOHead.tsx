@@ -9,30 +9,32 @@ interface SEOHeadProps {
 export const SEOHead = ({ title, description, canonical }: SEOHeadProps) => {
   useEffect(() => {
     document.title = title;
-    
-    // Update meta description
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", description);
-    }
 
-    // Update OG tags
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) {
-      ogTitle.setAttribute("content", title);
-    }
-
-    const ogDescription = document.querySelector('meta[property="og:description"]');
-    if (ogDescription) {
-      ogDescription.setAttribute("content", description);
-    }
-
-    // Update canonical if provided
-    if (canonical) {
-      const canonicalLink = document.querySelector('link[rel="canonical"]');
-      if (canonicalLink) {
-        canonicalLink.setAttribute("href", canonical);
+    const setMeta = (attribute: "name" | "property", value: string, content: string) => {
+      const selector = `meta[${attribute}="${value}"]`;
+      let element = document.head.querySelector<HTMLMetaElement>(selector);
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute(attribute, value);
+        document.head.appendChild(element);
       }
+      element.content = content;
+    };
+
+    setMeta("name", "description", description);
+    setMeta("property", "og:title", title);
+    setMeta("property", "og:description", description);
+
+    // Remove the previous route's canonical when the new route supplies none.
+    const existingCanonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (canonical) {
+      const link = existingCanonical ?? document.createElement("link");
+      link.rel = "canonical";
+      link.href = canonical;
+      if (!existingCanonical) document.head.appendChild(link);
+      return () => { link.remove(); };
+    } else {
+      existingCanonical?.remove();
     }
   }, [title, description, canonical]);
 
