@@ -16,7 +16,7 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 BASE = "https://gateway.polymarket.us"
-MAX_BYTES = 2_000_000
+MAX_BYTES = 12_000_000
 
 
 def utc(value: str) -> datetime:
@@ -53,13 +53,13 @@ def fetch_json(path: str) -> tuple[bytes, dict]:
     return raw, json.loads(raw)
 
 
-def capture(event_slug: str, market_slug: str, out: Path, *, clock=None) -> dict:
+def capture(event_slug: str, market_slug: str, bbo_symbol: str, out: Path, *, clock=None) -> dict:
     if os.getenv("HALTED") != "1" or os.getenv("PUBLICATION_ALLOWED") != "false":
         raise ValueError("fail-closed research configuration required")
     if not (event_slug.startswith("nba-") and market_slug.startswith("tsc-nba-")):
         raise ValueError("NBA event and full game totals market slug required")
     event_path = "/v1/events/slug/" + quote(event_slug, safe="-")
-    book_path = "/v1/orderbook/" + quote(market_slug, safe="-") + "/bbo"
+    if not bbo_symbol or "/" in bbo_symbol or len(bbo_symbol) > 240:\n        raise ValueError("verified exchange instrument symbol required")\n    book_path = "/v1/orderbook/" + quote(bbo_symbol, safe="-") + "/bbo"
     t0 = (clock or (lambda: datetime.now(timezone.utc)))()
     event_raw, payload = fetch_json(event_path)
     event = payload.get("event", payload)
@@ -89,7 +89,7 @@ def capture(event_slug: str, market_slug: str, out: Path, *, clock=None) -> dict
     receipt = {
         "schema": 1, "class": "LIVE_CAPTURE_PENDING_INDEPENDENT_ATTESTATION",
         "venue": "polymarket.us", "event_slug": event_slug, "event_id": str(event.get("id")),
-        "market_slug": market_slug, "market_id": str(market["id"]),
+        "market_slug": market_slug, "market_id": str(market["id"]),\n        "bbo_instrument_symbol": bbo_symbol,
         "market_line": str(market["line"]), "market_type": "basketball_team_full_game_total",
         "event_api_path": event_path, "bbo_api_path": book_path,
         "event_raw_sha256": digest(event_raw), "bbo_raw_sha256": digest(quote_raw),
@@ -150,10 +150,10 @@ def capture(event_slug: str, market_slug: str, out: Path, *, clock=None) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--event-slug", required=True)
-    parser.add_argument("--market-slug", required=True)
+    parser.add_argument("--market-slug", required=True)\n    parser.add_argument("--bbo-symbol", required=True, help="Verified instrument symbol from provider reference-data endpoint")
     parser.add_argument("--out", type=Path, required=True)
     a = parser.parse_args()
-    print(json.dumps(capture(a.event_slug, a.market_slug, a.out), sort_keys=True))
+    print(json.dumps(capture(a.event_slug, a.market_slug, a.bbo_symbol, a.out), sort_keys=True))
 
 
 if __name__ == "__main__":
