@@ -194,14 +194,11 @@ def run(output_dir: Path, *, now: datetime | None = None,
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
-    if os.environ.get("HALTED") != "1" or os.environ.get("PUBLICATION_ALLOWED") != "false":
-        raise SystemExit("Unsafe environment: HALTED=1 and PUBLICATION_ALLOWED=false required")
-    report = run(args.output)
-    print(json.dumps({k: v for k, v in report.items() if k != "source_sha256_by_day"},
-                     sort_keys=True))
+    """Legacy ESPN collector is disabled for any new CLI research run."""
+    raise SystemExit(
+        "RIGHTS_HOLD: no new ESPN forecasts until a separately licensed, "
+        "time-proven source adapter is approved."
+    )
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ from unittest.mock import patch
 from datetime import datetime, timezone, timedelta
 from nba_totals_research.worm_synthetic_smoke import run_smoke, SYNTHETIC_PREFIX
 
-NOW = datetime(2026,11,3,12,tzinfo=timezone.utc)
+NOW = datetime.now(timezone.utc) + timedelta(minutes=5)  # Test horizon must stay future-dated
 
 class Body:
     def __init__(self, data): self.data=data

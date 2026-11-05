@@ -1,12 +1,12 @@
 name: NBA forward paper forecast — research only
 on:
-  schedule:
-    - cron: "15 16 * * *"
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
   collect:
+    # Deliberately disabled until a licensed-source integration replaces ESPN.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
