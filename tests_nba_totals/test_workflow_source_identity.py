@@ -23,7 +23,12 @@ class TestWorkflowSourceIdentity(unittest.TestCase):
                 self.assertIn('HALTED: "1"', content)
                 self.assertIn('PUBLICATION_ALLOWED: "false"', content)
                 self.assertIn("workflow_dispatch:", content)
-                self.assertIn("schedule:", content)
+                if name.endswith("nba-forward-collection.yml"):
+                    # Rights hold: no scheduled or manual collection until licensed source.
+                    self.assertNotIn("schedule:", content)
+                    self.assertIn("if: ${{ false }}", content)
+                else:
+                    self.assertIn("schedule:", content)
 
 if __name__ == "__main__":
     unittest.main()
