@@ -28,3 +28,21 @@ An approved odds adapter/feed, retained original response timestamps, authentica
 
 21 local unittest checks cover stale/update/fetch ordering, capture after start, feature leakage, hash/model changes, duplicate selections, integer push mass, unsafe artifact paths, upload failure, wrong TSA digest, late server receipts and completion-last behavior. Remote archive lifecycle tests use explicitly synthetic adapters. Original historical RFC3161 tokens were independently verified with OpenSSL and pinned certificate hashes. No production Object Lock capture, full CI, new live-market collection or +EV computation is claimed.
 
+
+
+## Historical FINAL feature-lineage gate (2026-11-05)
+
+`history_evidence.py` now contains `capture_first_final_source`, `verify_history`, and `verify_history_archive`. The capture function writes the **original ESPN response bytes** to a **versioned S3 COMPLIANCE Object Lock** object when the ingestion process first observes the selected event as `FINAL`. It returns `fetched_at_utc`, `first_final_observed_at_utc`, SHA-256 and `immutable_archive_ref` (bucket/key/version/hash/server LastModified). An external event ledger must persist the *first* receipt and reuse it on subsequent sightings; this helper does not implement a distributed first-observation ledger or guarantee ESPN's actual publication time.
+
+`prepare_bundle(..., history_evidence=...)` is fail-closed: every selected historical ID in `history_source_game_ids` must have a matching original `FINAL` response and hash-bound archive reference. The historical source game must precede feature cutoff by at least 48 hours, and the observation must be no later than feature cutoff. Missing/altered/future evidence blocks bundle preparation. `archive_bundle` reads each historical Object Lock version back, validates original bytes, server LastModified and COMPLIANCE retention, and refuses completion if any source was archived after its corresponding feature cutoff.
+
+Core chronological conditions for each selected historical game and forecast:
+
+```
+first_final_observed_at_utc <= fetched_at_utc <= archived_at_server_utc
+archived_at_server_utc <= features_as_of_utc
+features_as_of_utc <= prediction_created_at_utc < scheduled_start_utc
+prediction_created_at_utc < actual_start_utc    # only after authoritative kickoff verification
+```
+
+This is **proof of possession at archived server time**, not proof of ESPN's first publication time, upstream licensing, or source authenticity. Unverified provider metadata, event mapping, actual kickoff, feature derivation, and OOS validation remain HOLD. Baseline source adapters must expose genuine `history_source_game_ids` and retain selected original bytes; no reconstruction of the November 3–4 inputs is allowed. Collector activation is not part of this PR. Synthetic CI does not certify a real remote Object Lock write.
