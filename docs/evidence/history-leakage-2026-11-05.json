@@ -1,0 +1,806 @@
+{
+  "status": "POINT_IN_TIME_NOT_PROVEN",
+  "cohorts": [
+    {
+      "required_observations": 20,
+      "passed": 0,
+      "history_evidence_complete": false,
+      "findings": [
+        {
+          "team": "dal",
+          "source_game_id": "401898395",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401898400",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401898408",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401901825",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909283",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909840",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909844",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909858",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909871",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909891",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898720",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898721",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898722",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898843",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909090",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909096",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909858",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909879",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909890",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909901",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        }
+      ],
+      "evaluation_eligible": false,
+      "publication_allowed": false,
+      "batch": "nba-forward-original-2026-11-03",
+      "source_game_id": "401909933",
+      "away": "dal",
+      "home": "sa",
+      "feature_cutoff_recorded": false,
+      "audit_cutoff_semantics": "generation_time_upper_bound_only",
+      "generated_at_host_utc": "2026-11-03T09:39:08.601802+00:00"
+    },
+    {
+      "required_observations": 20,
+      "passed": 0,
+      "history_evidence_complete": false,
+      "findings": [
+        {
+          "team": "lal",
+          "source_game_id": "401898390",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401898717",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401898718",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401898719",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909092",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909285",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909851",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909861",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909880",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909892",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401898399",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401898717",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401898843",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401901826",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909842",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909852",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909867",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909879",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909894",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909899",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        }
+      ],
+      "evaluation_eligible": false,
+      "publication_allowed": false,
+      "batch": "nba-forward-original-2026-11-03",
+      "source_game_id": "401909934",
+      "away": "lal",
+      "home": "sac",
+      "feature_cutoff_recorded": false,
+      "audit_cutoff_semantics": "generation_time_upper_bound_only",
+      "generated_at_host_utc": "2026-11-03T09:39:08.601802+00:00"
+    },
+    {
+      "required_observations": 18,
+      "passed": 0,
+      "history_evidence_complete": false,
+      "findings": [
+        {
+          "team": "lac",
+          "source_game_id": "401902645",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909284",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909842",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909851",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909865",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909892",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401918010",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401918011",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898393",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898397",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898404",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898406",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909091",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909282",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909847",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909853",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909871",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909881",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        }
+      ],
+      "evaluation_eligible": false,
+      "publication_allowed": false,
+      "batch": "nba-forward-original-2026-11-03",
+      "source_game_id": "401909935",
+      "away": "mia",
+      "home": "lac",
+      "feature_cutoff_recorded": false,
+      "audit_cutoff_semantics": "generation_time_upper_bound_only",
+      "generated_at_host_utc": "2026-11-03T09:39:08.601802+00:00"
+    },
+    {
+      "required_observations": 20,
+      "passed": 0,
+      "history_evidence_complete": false,
+      "findings": [
+        {
+          "team": "dal",
+          "source_game_id": "401898395",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401898400",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401898408",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401901825",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909283",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909840",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909844",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909858",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909871",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "dal",
+          "source_game_id": "401909891",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898720",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898721",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898722",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401898843",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909090",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909096",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909858",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909879",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909890",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sa",
+          "source_game_id": "401909901",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        }
+      ],
+      "evaluation_eligible": false,
+      "publication_allowed": false,
+      "batch": "actions_41919795738",
+      "source_game_id": "401909933",
+      "away": "dal",
+      "home": "sa",
+      "feature_cutoff_recorded": false,
+      "audit_cutoff_semantics": "generation_time_upper_bound_only",
+      "generated_at_host_utc": "2026-11-04T21:50:30.283306+00:00"
+    },
+    {
+      "required_observations": 20,
+      "passed": 0,
+      "history_evidence_complete": false,
+      "findings": [
+        {
+          "team": "lal",
+          "source_game_id": "401898717",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401898718",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401898719",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909092",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909285",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909851",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909861",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909880",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909892",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lal",
+          "source_game_id": "401909906",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401898399",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401898717",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401898843",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401901826",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909842",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909852",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909867",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909879",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909894",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "sac",
+          "source_game_id": "401909899",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        }
+      ],
+      "evaluation_eligible": false,
+      "publication_allowed": false,
+      "batch": "actions_41919795738",
+      "source_game_id": "401909934",
+      "away": "lal",
+      "home": "sac",
+      "feature_cutoff_recorded": false,
+      "audit_cutoff_semantics": "generation_time_upper_bound_only",
+      "generated_at_host_utc": "2026-11-04T21:50:30.283306+00:00"
+    },
+    {
+      "required_observations": 19,
+      "passed": 0,
+      "history_evidence_complete": false,
+      "findings": [
+        {
+          "team": "lac",
+          "source_game_id": "401902645",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909284",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909842",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909851",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909865",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909892",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401909905",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401918010",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "lac",
+          "source_game_id": "401918011",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898393",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898397",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898404",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401898406",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909091",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909282",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909847",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909853",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909871",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        },
+        {
+          "team": "mia",
+          "source_game_id": "401909881",
+          "point_in_time_pass": false,
+          "reason": "ORIGINAL_SOURCE_OBSERVATION_MISSING"
+        }
+      ],
+      "evaluation_eligible": false,
+      "publication_allowed": false,
+      "batch": "actions_41919795738",
+      "source_game_id": "401909935",
+      "away": "mia",
+      "home": "lac",
+      "feature_cutoff_recorded": false,
+      "audit_cutoff_semantics": "generation_time_upper_bound_only",
+      "generated_at_host_utc": "2026-11-04T21:50:30.283306+00:00"
+    }
+  ],
+  "primary_historical_version_selected": false,
+  "leakage_detected": null,
+  "note": "Missing provenance is not proof that leakage occurred. 48h lag is not evidence of source availability."
+}
