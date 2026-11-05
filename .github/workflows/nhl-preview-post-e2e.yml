@@ -1,48 +1,72 @@
-name: NHL protected Preview POST acceptance
+name: NHL protected Preview POST acceptance (OIDC)
 on:
+  push:
+    branches:
+      - feat/nhl-single-event-evidence-pilot
+    paths:
+      - .github/workflows/nhl-preview-post-e2e.yml
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   preview-post:
     runs-on: ubuntu-latest
-    environment: nhl-preview-e2e
     timeout-minutes: 5
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: Verify fixed deployment and POST authentication gates
-        shell: bash
+      - name: Verify protected NHL Preview POST auth with short-lived GitHub OIDC
         env:
-          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          BASE_URL: https://totalsengine-ii6uq72yv-info-32533854s-projects.vercel.app
         run: |
-          set -euo pipefail
-          if [[ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]]; then
-            echo "::error::Missing protected environment secret VERCEL_AUTOMATION_BYPASS_SECRET"
-            exit 1
-          fi
-          python3 - <<'PY'
-          import os, urllib.request, urllib.error, json
-          origin="https://totalsengine-4ixau1a5e-info-32533854s-projects.vercel.app"
-          endpoint=origin+"/api/tools/nhl-odds"
-          bypass=os.environ["VERCEL_AUTOMATION_BYPASS_SECRET"]
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self, req, fp, code, msg, headers, newurl):
-                  return None
-          opener=urllib.request.build_opener(NoRedirect())
-          def check(label, auth=None):
-              headers={"Content-Type":"application/json","x-vercel-protection-bypass":bypass}
-              if auth: headers["Authorization"]=auth
-              request=urllib.request.Request(endpoint,data=b"{}",headers=headers,method="POST")
-              try:
-                  response=opener.open(request,timeout=15)
-                  status=response.status
-                  payload=response.read(2048)
-              except urllib.error.HTTPError as error:
-                  status=error.code
-                  payload=error.read(2048)
-              assert status==401, f"{label}: expected 401, got {status}"
-              assert json.loads(payload)=={"error":"unauthorized"}, f"{label}: not application 401"
-              print(f"{label}: PASS (application 401)")
-          check("missing bearer")
-          check("invalid bearer","Bearer invalid-preview-smoke-token")
-          print("Preview negative-auth POST acceptance PASS; provider not called")
-          PY
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+
+          // Pinned, already-verified Preview: dpl_DtLfnonvZxU8a284Q3esn4AMMZCA
+          // Git SHA 0cb97eee1bc94ba02922f5a7430065c399ff847d (not production).
+          const expectedOrigin = 'https://totalsengine-ii6uq72yv-info-32533854s-projects.vercel.app';
+          const origin = new URL(process.env.BASE_URL);
+          assert.equal(origin.origin, expectedOrigin);
+          assert.equal(origin.protocol, 'https:');
+          assert.equal(origin.username, '');
+          assert.equal(origin.password, '');
+
+          const requestUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
+          const requestToken = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+          assert.ok(requestUrl && requestToken, 'GitHub Actions OIDC credentials missing');
+          const issuerEndpoint = new URL(requestUrl);
+          assert.equal(issuerEndpoint.protocol, 'https:');
+          assert.equal(issuerEndpoint.hostname, 'pipelines.actions.githubusercontent.com');
+          const jwtResponse = await fetch(issuerEndpoint, {
+            headers: { authorization: `bearer ${requestToken}` },
+            redirect: 'manual',
+            signal: AbortSignal.timeout(10000),
+          });
+          assert.equal(jwtResponse.status, 200, 'GitHub OIDC token acquisition failed');
+          const jwt = (await jwtResponse.json()).value;
+          assert.ok(jwt && typeof jwt === 'string', 'GitHub OIDC JWT missing');
+
+          async function check(label, authorization) {
+            const headers = {
+              'content-type': 'application/json',
+              'x-vercel-trusted-oidc-idp-token': jwt,
+            };
+            if (authorization) headers.authorization = authorization;
+            const response = await fetch(new URL('/api/tools/nhl-odds', origin), {
+              method: 'POST',
+              headers,
+              body: '{}',
+              redirect: 'manual',
+              signal: AbortSignal.timeout(15000),
+            });
+            assert.equal(response.status, 401, `${label}: expected application 401, received HTTP ${response.status}`);
+            const json = await response.json();
+            assert.deepEqual(json, {error: 'unauthorized'}, `${label}: response was not application auth rejection`);
+            console.log(`${label}: PASS / application 401`);
+          }
+
+          await check('POST without Authorization');
+          await check('POST invalid Bearer', 'Bearer invalid-preview-smoke-token');
+          console.log('PASS: 2 protected Preview POST negatives, provider not reached');
+          NODE
