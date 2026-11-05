@@ -45,6 +45,8 @@ def check(record):
             issues.append("result captured before tipoff")
         if str(forecast["source_game_id"]) != str(result["source_game_id"]):
             issues.append("result game identity mismatch")
+        if market.get("capture_mode") != "LIVE_CAPTURE":
+            issues.append("historical backfill is not proof of contemporaneous live market capture")
         if market["venue"] not in {"polymarket.com", "polymarket.us"}:
             issues.append("unsupported venue")
         if market["side"] not in {"OVER", "UNDER"}:
