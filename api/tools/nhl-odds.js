@@ -3,7 +3,6 @@ import { createHash, timingSafeEqual } from "node:crypto";
 const allowedOrigin = "https://api.the-odds-api.com";
 const sport = "icehockey_nhl";
 const MAX_BYTES = 2_000_000;
-const json = (status, body) => new Response(JSON.stringify(body), {status, headers: {"content-type":"application/json","cache-control":"no-store"}});
 function authorized(request) {
   const secret = process.env.TOTALSENGINE_TOOLS_TOKEN;
   const supplied = request.headers.get("authorization")?.replace(/^Bearer /i, "");
@@ -25,11 +24,20 @@ export async function fetchNhlOdds({ event_id } = {}) {
   const raw = Buffer.from(await response.arrayBuffer());
   if (raw.length > MAX_BYTES) throw new Error("provider response exceeds size limit");
   const fetched_at_utc = new Date().toISOString();
+  const quota = {};
+  for (const key of ["x-requests-remaining", "x-requests-used", "x-requests-last"]) {
+    const value = response.headers.get(key);
+    if (value !== null) {
+      if (!/^\\d+$/.test(value)) throw new Error(`invalid provider quota header: ${key}`);
+      quota[key.replace("x-requests-", "")] = Number(value);
+    }
+  }
   const events = JSON.parse(raw.toString("utf8"));
   if (!Array.isArray(events)) throw new Error("unexpected odds response");
   const selected = event_id ? events.filter(e => e.id === event_id) : events;
+  if (event_id && selected.length !== 1) throw new Error("requested event_id not uniquely present in provider response");
   return {
-    source: "the-odds-api", sport, fetched_at_utc,
+    source: "the-odds-api", sport, fetched_at_utc, provider_quota: quota,
     raw_response_sha256: createHash("sha256").update(raw).digest("hex"),
     raw_response_base64: raw.toString("base64"),
     events: selected.map(e => ({id:e.id, home_team:e.home_team, away_team:e.away_team, commence_time:e.commence_time,
