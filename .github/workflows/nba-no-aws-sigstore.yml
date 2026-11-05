@@ -1,5 +1,8 @@
 name: NBA no-AWS Sigstore evidence canary
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - feat/no-aws-sigstore-evidence-*
