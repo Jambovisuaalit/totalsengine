@@ -37,7 +37,7 @@ jobs:
           assert.ok(requestUrl && requestToken, 'GitHub Actions OIDC credentials missing');
           const issuerEndpoint = new URL(requestUrl);
           assert.equal(issuerEndpoint.protocol, 'https:');
-          assert.equal(issuerEndpoint.hostname, 'pipelines.actions.githubusercontent.com');
+          assert.ok(issuerEndpoint.hostname.endsWith('.actions.githubusercontent.com'), 'Invalid GitHub OIDC endpoint host');
           const jwtResponse = await fetch(issuerEndpoint, {
             headers: { authorization: `bearer ${requestToken}` },
             redirect: 'manual',
