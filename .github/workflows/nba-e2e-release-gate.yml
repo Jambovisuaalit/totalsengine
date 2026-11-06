@@ -80,7 +80,7 @@ jobs:
           try:
               payload=json.loads(subprocess.check_output([
                   "gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/commits/{sha}/check-runs",
-                  "-f","per_page=100"],text=True))
+                  "-X","GET","-f","per_page=100"],text=True))
               for item in payload.get("check_runs",[]):
                   if item.get("status")=="completed":
                       checks[item["name"]]=item.get("conclusion")
