@@ -81,10 +81,10 @@ jobs:
           checks={}
           try:
               payload=json.loads(subprocess.check_output([
-                  "gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/commits/{sha}/check-runs",
-                  "-X","GET","-f","per_page=100"],text=True))
-              for item in payload.get("check_runs",[]):
-                  if item.get("status")=="completed":
+                  "gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs",
+                  "-X","GET","-f",f"head_sha={sha}","-f","per_page=100"],text=True))
+              for item in payload.get("workflow_runs",[]):
+                  if item.get("head_sha")==sha and item.get("status")=="completed":
                       checks[item["name"]]=item.get("conclusion")
           except (subprocess.CalledProcessError,KeyError,ValueError):
               pass
