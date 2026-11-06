@@ -1,0 +1,106 @@
+name: NBA synthetic E2E Sigstore and release gate
+on:
+  pull_request:
+    branches:
+      - feat/nba-real-source-evidence-gate-*
+      - main
+  push:
+    branches:
+      - feat/nba-qa-e2e-release-gate-*
+  workflow_dispatch:
+permissions:
+  contents: read
+  checks: read
+  actions: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+jobs:
+  synthetic-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Run adapter QA and synthetic regression tests
+        run: |
+          python -m unittest discover -s tests_nba_totals -p 'test_*.py'
+      - name: Create deterministic raw-feature-forecast manifest
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from nba_totals_research.synthetic_e2e import produce
+          print(produce(Path("nba-e2e-canary"),commit=os.environ["GITHUB_SHA"],
+                        run_id=os.environ["GITHUB_RUN_ID"]))
+          PY
+      - name: Attest synthetic manifest with keyless GitHub OIDC
+        id: attest
+        uses: actions/attest@v4
+        with:
+          subject-path: nba-e2e-canary/manifest.json
+      - name: Independently verify signature, source and transparency receipt
+        env:
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          test -s "$BUNDLE_PATH"
+          gh attestation verify nba-e2e-canary/manifest.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --bundle "$BUNDLE_PATH" \
+            --source-digest "$GITHUB_SHA" \
+            --source-ref "$GITHUB_REF" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/nba-e2e-release-gate.yml" \
+            --format json > nba-e2e-canary/verified-attestation.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from nba_totals_research.no_aws_receipt_check import validate_receipt
+          from nba_totals_research.synthetic_e2e import verify
+          base=Path("nba-e2e-canary")
+          verify(base)
+          report=validate_receipt(base/"manifest.json",base/"verified-attestation.json",
+                                  commit_sha=os.environ["GITHUB_SHA"])
+          (base/"verification-receipt.json").write_text(json.dumps(report,sort_keys=True))
+          PY
+      - name: Generate auditable release gate from commit checks
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          from nba_totals_research.release_gate import evaluate
+          sha=os.environ["RELEASE_HEAD_SHA"]
+          checks={}
+          try:
+              payload=json.loads(subprocess.check_output([
+                  "gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/commits/{sha}/check-runs",
+                  "-f","per_page=100"],text=True))
+              for item in payload.get("check_runs",[]):
+                  if item.get("status")=="completed":
+                      checks[item["name"]]=item.get("conclusion")
+          except (subprocess.CalledProcessError,KeyError,ValueError):
+              pass
+          rights=json.loads(Path("config/nba_balldontlie_rights_policy.json").read_bytes())
+          receipt=json.loads(Path("nba-e2e-canary/verification-receipt.json").read_bytes())
+          report=evaluate(head_sha=sha,ci=checks,rights=rights,
+                          synthetic_receipt=receipt)
+          Path("release_gate.json").write_text(json.dumps(report,sort_keys=True,indent=2))
+          print(json.dumps(report,sort_keys=True))
+          assert report["production_release"]=="HOLD"
+          assert report["ev_signals"]=="HOLD"
+          PY
+      - name: Archive only synthetic test evidence and release decision
+        uses: actions/upload-artifact@v4
+        with:
+          name: nba-e2e-release-gate-${{ github.run_id }}
+          path: |
+            nba-e2e-canary/
+            release_gate.json
+          retention-days: 7
+          if-no-files-found: error
