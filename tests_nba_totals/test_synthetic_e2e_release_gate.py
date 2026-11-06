@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from nba_totals_research.synthetic_e2e import produce, verify
-from nba_totals_research.release_gate import evaluate
+from nba_totals_research.ci_release_gate_report import evaluate
 from nba_totals_research.balldontlie_games_adapter import select_event, CapturedResponse
 
 
