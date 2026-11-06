@@ -38,8 +38,9 @@
       "final_total": 218,
       "error": 2.4,
       "absolute_error": 2.4,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718027",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909923",
@@ -49,8 +50,9 @@
       "final_total": 225,
       "error": 2.8,
       "absolute_error": 2.8,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718028",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909924",
@@ -60,8 +62,9 @@
       "final_total": 211,
       "error": 24.1222,
       "absolute_error": 24.1222,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718029",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909925",
@@ -71,8 +74,9 @@
       "final_total": 218,
       "error": 2.1167,
       "absolute_error": 2.1167,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718030",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909926",
@@ -82,8 +86,9 @@
       "final_total": 240,
       "error": -8.9,
       "absolute_error": 8.9,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718031",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909927",
@@ -93,8 +98,9 @@
       "final_total": 210,
       "error": 22.35,
       "absolute_error": 22.35,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718032",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909928",
@@ -104,8 +110,9 @@
       "final_total": 233,
       "error": -4.75,
       "absolute_error": 4.75,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718033",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909929",
@@ -115,8 +122,9 @@
       "final_total": 240,
       "error": -12.1611,
       "absolute_error": 12.1611,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718034",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909930",
@@ -126,8 +134,9 @@
       "final_total": 224,
       "error": 6.85,
       "absolute_error": 6.85,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718035",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909931",
@@ -137,8 +146,9 @@
       "final_total": 237,
       "error": -6.7,
       "absolute_error": 6.7,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718036",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909932",
@@ -148,8 +158,9 @@
       "final_total": 251,
       "error": -21.0833,
       "absolute_error": 21.0833,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718037",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909933",
@@ -159,8 +170,9 @@
       "final_total": 223,
       "error": 4.1,
       "absolute_error": 4.1,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718038",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909934",
@@ -170,8 +182,9 @@
       "final_total": 219,
       "error": 8.6,
       "absolute_error": 8.6,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718039",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     },
     {
       "espn_game_id": "401909935",
@@ -181,16 +194,22 @@
       "final_total": 233,
       "error": -1.2125,
       "absolute_error": 1.2125,
-      "bdl_game_id": null,
-      "bdl_identity_verified": false
+      "bdl_game_id": "21718040",
+      "bdl_identity_verified": true,
+      "bdl_match_status": "EXACT_STRUCTURAL_MATCH_NOT_RIGHTS_CERTIFIED"
     }
   ],
   "espn_internal_exact_id_and_teams": true,
-  "independent_bdl_game_id_mapping_verified": false,
+  "independent_bdl_game_id_mapping_verified": true,
   "source_rights_verified": false,
   "worm_verified": false,
   "independently_verified_count": 0,
   "evaluation_eligible": false,
   "publication_allowed": false,
-  "gate_status": "NO_GO"
+  "gate_status": "NO_GO",
+  "bdl_mapping_scope": "14/14 EXACT TEAMS UTC TIPOFF AND SCORE CROSS-MATCH; NOT A SIGNED SOURCE LICENCE",
+  "bdl_provider_response_sha256": "e52fe53df7c82d344cb48061db954b1d45dbe49fa0cf59b7b839d3e20ee4ddc2",
+  "bdl_retrieved_at_host_utc": "2026-11-06T23:40:12.253Z",
+  "bdl_original_json_archived": false,
+  "provider_crosscheck_count": 14
 }
