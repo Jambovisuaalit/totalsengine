@@ -71,6 +71,8 @@ def fetch_games(*, day: str, api_key: str | None = None,
     games = obj.get("data")
     if not isinstance(games, list) or not all(isinstance(game, dict) for game in games):
         raise ValueError("Invalid Games API response")
+    if not isinstance(obj.get("meta", {}), dict):
+        raise ValueError("Invalid pagination metadata")
     if obj.get("meta", {}).get("next_cursor") is not None:
         raise ValueError("Games page incomplete: pagination required before use")
     return CapturedResponse(
@@ -86,13 +88,26 @@ def select_event(capture: CapturedResponse, game_id: str) -> tuple[dict, str]:
     game = matches[0]
     status = str(game.get("status", "")).strip().lower()
     period = game.get("period")
-    time = str(game.get("time", "")).strip().lower()
     scores = (game.get("home_team_score"), game.get("visitor_team_score"))
     if status in {"final", "completed"}:
         if any(not isinstance(x, int) or isinstance(x, bool) or x < 0 for x in scores):
             raise ValueError("FINAL game lacks authoritative final scores")
         return game, "FINAL"
-    if status in {"", "scheduled", "not started"} and period in (None, 0):
-        return game, "PRE_GAME"
+    # Provider commonly represents scheduled games by an ISO-8601 status
+    # timestamp. Require a matching canonical tipoff and a zero period.
+    if period in (None, 0):
+        scheduled = game.get("datetime")
+        if isinstance(scheduled, str) and scheduled:
+            try:
+                from datetime import datetime
+                tipoff = datetime.fromisoformat(scheduled.replace("Z", "+00:00"))
+                status_dt = datetime.fromisoformat(status.replace("z", "+00:00"))
+                if (tipoff.tzinfo is not None and status_dt.tzinfo is not None
+                        and tipoff == status_dt):
+                    return game, "PRE_GAME"
+            except ValueError:
+                pass
+        if status in {"scheduled", "not started"}:
+            return game, "PRE_GAME"
     # Unknown and underway are never silently promoted to PRE_GAME.
     return game, "UNKNOWN_OR_LIVE"
