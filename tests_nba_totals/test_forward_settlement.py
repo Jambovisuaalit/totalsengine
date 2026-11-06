@@ -64,6 +64,45 @@ class TestForwardSettlement(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertFalse(rows[0]["evaluation_eligible"])
 
+    def test_accept_signed_receipt_artifact_as_provisional_only(self):
+        import base64
+        files = fixture()
+        files.pop("source_snapshots/2026-11-02.json")
+        receipt = {"kind":"PREGAME_RESEARCH_TSA_NOT_WORM",
+                   "predictions_sha256": digest(files["predictions.jsonl"]),
+                   "n_forecasts":1, "immutable_worm_verified":False,
+                   "evaluation_eligible":False,"publication_allowed":False,
+                   "gate_status":"NO_GO","signed_gen_time_utc":(NOW+timedelta(minutes=1)).isoformat(),
+                   "request_tsq_base64":base64.b64encode(b"synthetic request").decode(),
+                   "response_tsr_base64":base64.b64encode(b"synthetic response").decode(),
+                   "request_sha256":digest(b"synthetic request"),
+                   "response_sha256":digest(b"synthetic response")}
+        files["timestamp-receipt.json"] = canonical(receipt)
+        rows = inspect_artifact(zipfiles(files), RUN, artifact_name="nba-paper-77")
+        self.assertEqual(len(rows),1)
+        self.assertFalse(rows[0]["evaluation_eligible"])
+        receipt["predictions_sha256"] = "0"*64
+        files["timestamp-receipt.json"] = canonical(receipt)
+        with self.assertRaisesRegex(ValueError,"timestamp receipt"):
+            inspect_artifact(zipfiles(files), RUN, artifact_name="nba-paper-77")
+
+    def test_reject_postgame_timestamp_receipt(self):
+        import base64
+        files=fixture()
+        files.pop("source_snapshots/2026-11-02.json")
+        q=b"synthetic"; r=b"token"
+        files["timestamp-receipt.json"]=canonical({
+            "kind":"PREGAME_RESEARCH_TSA_NOT_WORM",
+            "predictions_sha256":digest(files["predictions.jsonl"]),
+            "n_forecasts":1,"immutable_worm_verified":False,
+            "evaluation_eligible":False,"publication_allowed":False,
+            "gate_status":"NO_GO","signed_gen_time_utc":(TIP+timedelta(seconds=1)).isoformat(),
+            "request_tsq_base64":base64.b64encode(q).decode(),
+            "response_tsr_base64":base64.b64encode(r).decode(),
+            "request_sha256":digest(q),"response_sha256":digest(r)})
+        with self.assertRaisesRegex(ValueError,"post-tipoff"):
+            inspect_artifact(zipfiles(files), RUN, artifact_name="nba-paper-77")
+
     def test_reject_tampered_prediction_bytes(self):
         files = fixture()
         files["predictions.jsonl"] = files["predictions.jsonl"].replace(b"225.5", b"226.5")
