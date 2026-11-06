@@ -79,15 +79,22 @@ jobs:
           from nba_totals_research.ci_release_gate_report import evaluate
           sha=os.environ["RELEASE_HEAD_SHA"]
           checks={}
-          try:
-              payload=json.loads(subprocess.check_output([
-                  "gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs",
-                  "-X","GET","-f",f"head_sha={sha}","-f","per_page=100"],text=True))
-              for item in payload.get("workflow_runs",[]):
-                  if item.get("head_sha")==sha and item.get("status")=="completed":
-                      checks[item["name"]]=item.get("conclusion")
-          except (subprocess.CalledProcessError,KeyError,ValueError):
-              pass
+          import time
+          required={"Root CI","NBA research regression and evidence contracts",
+                    "NBA totals evidence core (synthetic)"}
+          for attempt in range(24):
+              try:
+                  payload=json.loads(subprocess.check_output([
+                      "gh","api",f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/runs",
+                      "-X","GET","-f",f"head_sha={sha}","-f","per_page=100"],text=True))
+                  for item in payload.get("workflow_runs",[]):
+                      if item.get("head_sha")==sha and item.get("status")=="completed":
+                          checks[item["name"]]=item.get("conclusion")
+              except (subprocess.CalledProcessError,KeyError,ValueError):
+                  pass
+              if required.issubset(checks):
+                  break
+              time.sleep(5)
           rights=json.loads(Path("config/nba_balldontlie_rights_policy.json").read_bytes())
           receipt=json.loads(Path("nba-e2e-canary/verification-receipt.json").read_bytes())
           report=evaluate(head_sha=sha,ci=checks,rights=rights,
