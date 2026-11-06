@@ -74,7 +74,7 @@ jobs:
           python - <<'PY'
           import json,os,subprocess
           from pathlib import Path
-          from nba_totals_research.release_gate import evaluate
+          from nba_totals_research.ci_release_gate_report import evaluate
           sha=os.environ["RELEASE_HEAD_SHA"]
           checks={}
           try:
