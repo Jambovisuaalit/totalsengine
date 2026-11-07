@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "kind": "BDL_GAMES_14_REAL_AUTHENTICATED_LOOKUP",
+  "retrieved_at_host_utc": "2026-11-06T23:40:12.253Z",
+  "response_status": 200,
+  "api_response_sha256": "e52fe53df7c82d344cb48061db954b1d45dbe49fa0cf59b7b839d3e20ee4ddc2",
+  "api_response_bytes": 12397,
+  "raw_provider_response_archived": false,
+  "expected": 14,
+  "matched": 14,
+  "match_basis": "EXACT_DATE_UTC_TEAMS_HOME_AWAY_FINAL_SCORES",
+  "matches": [
+    {
+      "espn_game_id": "401909922",
+      "bdl_game_id": "21718027",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909923",
+      "bdl_game_id": "21718028",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909924",
+      "bdl_game_id": "21718029",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909925",
+      "bdl_game_id": "21718030",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909926",
+      "bdl_game_id": "21718031",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909927",
+      "bdl_game_id": "21718032",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909928",
+      "bdl_game_id": "21718033",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909929",
+      "bdl_game_id": "21718034",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909930",
+      "bdl_game_id": "21718035",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909931",
+      "bdl_game_id": "21718036",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909932",
+      "bdl_game_id": "21718037",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909933",
+      "bdl_game_id": "21718038",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909934",
+      "bdl_game_id": "21718039",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    },
+    {
+      "espn_game_id": "401909935",
+      "bdl_game_id": "21718040",
+      "match_count": 1,
+      "status": "EXACT_STRUCTURAL_MATCH_PROVIDER_NOT_LEGALLY_CLEARED"
+    }
+  ],
+  "source_rights_verified": false,
+  "independent_upstream_pregame_availability_verified": false,
+  "worm_verified": false,
+  "evaluation_eligible": false,
+  "publication_allowed": false,
+  "gate_status": "NO_GO"
+}

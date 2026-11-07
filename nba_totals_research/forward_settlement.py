@@ -104,7 +104,7 @@ def inspect_artifact(raw_zip: bytes, run: dict, *, artifact_name: str) -> list[d
         for info in archive.infolist():
             name = info.filename
             if (info.is_dir() or name.startswith("/") or ".." in Path(name).parts
-                    or not (name in {"manifest.json", "predictions.jsonl"}
+                    or not (name in {"manifest.json", "predictions.jsonl", "timestamp-receipt.json"}
                             or re.fullmatch(r"source_snapshots/\d{4}-\d{2}-\d{2}\.json", name))
                     or info.file_size > 2_000_000):
                 raise ValueError("Unsafe or unexpected Actions archive entry")
@@ -123,7 +123,7 @@ def inspect_artifact(raw_zip: bytes, run: dict, *, artifact_name: str) -> list[d
         # pending provider retention approval.
         snapshot_names = {f"source_snapshots/{day}.json"
                           for day in manifest["source_sha256_by_day"]}
-        present = set(files) - {"manifest.json", "predictions.jsonl"}
+        present = set(files) - {"manifest.json", "predictions.jsonl", "timestamp-receipt.json"}
         if present and present != snapshot_names:
             raise ValueError("Incomplete or unexpected archived source snapshots")
         for day, sha in manifest["source_sha256_by_day"].items():
@@ -132,6 +132,33 @@ def inspect_artifact(raw_zip: bytes, run: dict, *, artifact_name: str) -> list[d
             name = f"source_snapshots/{day}.json"
             if name in files and digest(files[name]) != sha:
                 raise ValueError("Source snapshot SHA mismatch")
+        # The new collector includes a pregame signed RFC3161 receipt.
+        # Validate bytes and ordering; do not mistake this check for a full
+        # independent cryptographic signature/CA verification or WORM proof.
+        receipt_raw = files.get("timestamp-receipt.json")
+        if receipt_raw is not None:
+            import base64
+            receipt = json.loads(receipt_raw)
+            if (receipt.get("kind") != "PREGAME_RESEARCH_TSA_NOT_WORM"
+                    or receipt.get("predictions_sha256") != digest(predictions)
+                    or receipt.get("n_forecasts") != manifest.get("n_forecasts")
+                    or receipt.get("evaluation_eligible") is not False
+                    or receipt.get("publication_allowed") is not False
+                    or receipt.get("immutable_worm_verified") is not False
+                    or receipt.get("gate_status") != "NO_GO"):
+                raise ValueError("Unsafe or mismatched timestamp receipt")
+            try:
+                query = base64.b64decode(receipt["request_tsq_base64"], validate=True)
+                reply = base64.b64decode(receipt["response_tsr_base64"], validate=True)
+            except (KeyError, ValueError) as exc:
+                raise ValueError("Malformed timestamp evidence encoding") from exc
+            if (digest(query) != receipt.get("request_sha256")
+                    or digest(reply) != receipt.get("response_sha256")):
+                raise ValueError("Timestamp evidence SHA mismatch")
+            signed = iso(receipt["signed_gen_time_utc"])
+            rows_for_timestamp = [json.loads(line) for line in predictions.splitlines() if line.strip()]
+            if rows_for_timestamp and signed >= min(iso(p["scheduled_tipoff"]) for p in rows_for_timestamp):
+                raise ValueError("TSA receipt is post-tipoff")
         generated = iso(manifest["generated_at_host_utc"])
         # GitHub run was created first and finished before the forecasted game.
         if not created - timedelta(minutes=1) <= generated <= completed + timedelta(minutes=1):
